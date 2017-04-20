@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Armory : MonoBehaviour {
-	List<Weapon> weapons;
+
+
+
+    public List<Weapon> weapons;
 	// Use this for initialization
 	void Awake () {
 		weapons = new List<Weapon> ();

@@ -7,24 +7,33 @@ public class Unit : MonoBehaviour {
 	public bool aiming;
 	public int cordX;
 	public int cordY;
-	GameObject weaponObject;
+	public GameObject weaponObject;
 	public Reticle reticle;
 	public Weapon primaryWeapon;
 	public GameController gameController;
-	// Use this for initialization
-	void Awake(){
+
+    //flavor info
+    public string name;
+    public int age;
+
+
+    // Use this for initialization
+    void Awake(){
 		hp = 1;
 		gameController = GameObject.Find ("GameController").GetComponent<GameController>();
 		cordX = 0;
 		cordY = 0;
 		aiming = false;
-	}
-	void Start () {
+        weaponObject = Resources.Load("Prefabs/Weapon") as GameObject;
+
+    }
+    void Start () {
 		alive = true;
-		weaponObject = Resources.Load ("prefabs/Weapon") as GameObject;
 		primaryWeapon = GameObject.Instantiate (weaponObject, transform.position, Quaternion.identity).GetComponent<Weapon> ();
 		primaryWeapon.owner = this;
-	}
+        NameWizard nw = GameObject.Find("NameWizard").GetComponent<NameWizard>();
+        name = nw.RandomName() + " " + nw.RandomLastName();
+    }
 
 	// Update is called once per frame
 	void Update () {
@@ -55,6 +64,7 @@ public class Unit : MonoBehaviour {
 	public void Die(){
 		GetComponent<SpriteRenderer> ().color = Color.yellow;
 		alive = false;
+        gameController.occupationGrid[cordY * gameController.GetLevelWidth() + cordX] = 0;
 	}
 
 	public bool MoveNorth (){

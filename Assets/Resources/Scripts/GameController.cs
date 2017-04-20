@@ -35,7 +35,7 @@ public class GameController : MonoBehaviour {
 	List<EnemyController> enemyControllers;
 	public Unit playerUnit;
 
-	void Awake(){
+    void Awake(){
 
 	}
 
@@ -59,19 +59,14 @@ public class GameController : MonoBehaviour {
 			Destroy (tileGrid [i]);
 			Destroy (unitGrid [i]);
 		}
-		//create new grid, fill with tiles
+		//create new grid
 		unitGrid = new Unit[width*height];
 		tileGrid = new GameObject[width*height];
-		occupationGrid = new int[width * height];
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				GameObject spawnedTile =  Instantiate (tile, new Vector3 (x-(width)/2f, y-(height)/2f, 0), Quaternion.identity) as GameObject;
-				tileGrid [y * width + x] = spawnedTile;
-			}
-		}
-			
-		//spawn player
-		playerUnit.GetComponent<Unit>().Move(width/2,height/2);
+        occupationGrid = new int[width * height];
+
+
+        //spawn player
+        playerUnit.GetComponent<Unit>().Move(width/2,height/2);
 
 		//spawn enemies
 		List<Vector2> coords = new List<Vector2> ();
@@ -99,7 +94,19 @@ public class GameController : MonoBehaviour {
 			Debug.Log (coords [i].x + "," + coords [i].y);
 		}
 
-	}
+        //spawn tiles
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                GameObject spawnedTile = Instantiate(tile, new Vector3(x - (width) / 2f, y - (height) / 2f, 0), Quaternion.identity) as GameObject;
+                float tone = UnityEngine.Random.Range(0f, .05f);
+                spawnedTile.GetComponent<SpriteRenderer>().color = new Color(tone, tone, tone, .5f);
+                tileGrid[y * width + x] = spawnedTile;
+            }
+        }
+
+    }
 	public void RunTurn(){
 		for (int i = 0; i < enemyControllers.Count; i++) {
 			//enemyControllers [i];
