@@ -15,8 +15,7 @@ public class Unit : MonoBehaviour {
     //flavor info
     public string name;
     public int age;
-
-
+	public Color myColor;
     // Use this for initialization
     void Awake(){
 		hp = 1;
@@ -25,14 +24,17 @@ public class Unit : MonoBehaviour {
 		cordY = 0;
 		aiming = false;
         weaponObject = Resources.Load("Prefabs/Weapon") as GameObject;
-
+		age = Random.Range (15, 60);
+		primaryWeapon = GameObject.Instantiate (weaponObject, transform.position, Quaternion.identity).GetComponent<Weapon> ();
+		primaryWeapon.owner = this;
+		myColor = new Color (Random.Range (.2f, 1f), Random.Range (.2f, 1f), Random.Range (.2f, 1f));
+		GetComponent<SpriteRenderer> ().color = myColor;
     }
     void Start () {
 		alive = true;
-		primaryWeapon = GameObject.Instantiate (weaponObject, transform.position, Quaternion.identity).GetComponent<Weapon> ();
-		primaryWeapon.owner = this;
         NameWizard nw = GameObject.Find("NameWizard").GetComponent<NameWizard>();
         name = nw.RandomName() + " " + nw.RandomLastName();
+		gameController.unitList.Add (this);
     }
 
 	// Update is called once per frame
@@ -40,14 +42,14 @@ public class Unit : MonoBehaviour {
 
 	}
 	public bool Move(int x, int y){
-		Debug.Log ("Move");
 		if (x < gameController.GetLevelWidth () && y < gameController.GetLevelHeight () && x >= 0 && y >= 0 && gameController.occupationGrid[y*gameController.GetLevelWidth() + x] == 0) {
+			primaryWeapon.Reset ();
 			gameController.unitGrid [cordY * gameController.GetLevelWidth () + cordX] = null;
 			transform.position = new Vector3 ((x - gameController.GetLevelWidth () / 2)-.5f, (y - gameController.GetLevelHeight () / 2)-.5f, transform.position.z);
-			gameController.occupationGrid [cordY * gameController.GetLevelWidth () + cordX] = 0;
+			gameController.SetOccupation (cordX, cordY, 0);
 			cordX = x; 
 			cordY = y;
-			gameController.occupationGrid [cordY * gameController.GetLevelWidth () + cordX] = 1;
+			gameController.SetOccupation (cordX, cordY, 1);
 			gameController.unitGrid [cordY * gameController.GetLevelWidth () + cordX] = this;
 			return true;
 		}
@@ -65,6 +67,10 @@ public class Unit : MonoBehaviour {
 		GetComponent<SpriteRenderer> ().color = Color.yellow;
 		alive = false;
         gameController.occupationGrid[cordY * gameController.GetLevelWidth() + cordX] = 0;
+		gameController.SetUnit (cordX, cordY, null);
+		gameController.unitList.Remove (this);
+		primaryWeapon.Reset ();
+		GetComponent<SpriteRenderer> ().color = new Color (0f, 0f, 0f, 0f);
 	}
 
 	public bool MoveNorth (){

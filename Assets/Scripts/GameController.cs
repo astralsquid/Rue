@@ -32,15 +32,19 @@ public class GameController : MonoBehaviour {
 	public GameObject[] tileGrid;
 	public Unit[] unitGrid;
 	public int[] occupationGrid;
-	List<EnemyController> enemyControllers;
+	public int[] targetGrid;
+	public List<EnemyController> enemyControllers;
 	public Unit playerUnit;
+	public List<Unit> unitList;
 
     void Awake(){
+		unitList = new List<Unit> ();
 
 	}
 
 	void Start () {
 		enemyControllers = new List<EnemyController> ();
+		targetGrid = new int[0];
 		unitGrid = new Unit[0];
 		occupationGrid = new int[0];
 		tileGrid = new GameObject[0];
@@ -60,6 +64,7 @@ public class GameController : MonoBehaviour {
 			Destroy (unitGrid [i]);
 		}
 		//create new grid
+		targetGrid = new int[width * height];
 		unitGrid = new Unit[width*height];
 		tileGrid = new GameObject[width*height];
         occupationGrid = new int[width * height];
@@ -87,11 +92,11 @@ public class GameController : MonoBehaviour {
 			coords[randomIndex] = temp;
 		}
 
+		//place enemies
 		for (int i = 0; i < enemies; i++) {
 			GameObject e = GameObject.Instantiate (enemyController, new Vector3 (0, 0, 0), Quaternion.identity);
 			enemyControllers.Add (e.GetComponent<EnemyController>());
 			enemyControllers[enemyControllers.Count-1].unit.Move ((int)coords [i].x, (int)coords [i].y);
-			Debug.Log (coords [i].x + "," + coords [i].y);
 		}
 
         //spawn tiles
@@ -109,19 +114,44 @@ public class GameController : MonoBehaviour {
     }
 	public void RunTurn(){
 		for (int i = 0; i < enemyControllers.Count; i++) {
-			//enemyControllers [i];
+			enemyControllers [i].ClaimMove();
 		}
 		for (int i = 0; i < enemyControllers.Count; i++) {
 			enemyControllers [i].TakeTurn ();
 		}
 	}
 		
-
-
+	public void AddTarget(int x, int y){
+		targetGrid [y * levelWidth + x] += 1;
+	}
+	public void SubTarget(int x, int y){
+		targetGrid [y * levelWidth + x] -= 1;
+	}
+	public int GetTarget(int x, int y){
+		return targetGrid [y * levelWidth + x];
+	}
 	public int GetLevelHeight(){
 		return levelHeight;
 	}
 	public int GetLevelWidth(){
 		return levelWidth;
+	}
+	public Unit GetUnit(int x, int y){
+		return unitGrid [y * levelWidth + x];
+	}
+	public void SetUnit(int x, int y, Unit u){
+		unitGrid [y * levelWidth + x] = u;
+	}
+	public void RemoveUnit(int x, int y){
+		unitGrid [y * levelWidth + x] = null;
+	}
+	public int GetOccupation(int x, int y){
+		return occupationGrid [y * levelWidth + x];
+	}
+	public void SetOccupation(int x, int y, int v){
+		occupationGrid [y * levelWidth + x] = v;	
+	}
+	public int GetDistanceFromUnit(int i, int x, int y){
+		return Mathf.Abs (unitList [i].cordX - x) + Mathf.Abs (unitList [i].cordY - y);
 	}
 }

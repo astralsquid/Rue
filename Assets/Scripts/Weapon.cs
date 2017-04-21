@@ -8,7 +8,7 @@ public class Weapon : MonoBehaviour {
 	public Reticle reticle;
 	public Unit owner;
 	public GameObject myReticleObject;
-	public int range = 1;
+	public int range;
 	public string name = "weapon";
 	public int step = 0;
 	public int steps = 2;
@@ -16,7 +16,6 @@ public class Weapon : MonoBehaviour {
 	public int strikeStep = 2;
     public int savedReticleX;
     public int savedReticleY;
-
 
 	// Use this for initialization
 	void Start () {
@@ -33,6 +32,8 @@ public class Weapon : MonoBehaviour {
 			//aim
 			myReticleObject = GameObject.Instantiate (reticleObject, owner.transform.position, Quaternion.identity);
 			reticle = myReticleObject.GetComponent<Reticle> ();
+			reticle.GetComponent<SpriteRenderer> ().color = new Color (owner.myColor.r, owner.myColor.g, owner.myColor.b, .2f);
+				
 			reticle.cordX = owner.cordX;
 			reticle.cordY = owner.cordY ;
 			owner.aiming = true;
@@ -51,7 +52,7 @@ public class Weapon : MonoBehaviour {
                 {
                     if (owner.gameController.occupationGrid[h * owner.gameController.GetLevelWidth() + w] == 1 && (w != owner.cordX || h != owner.cordY))
                     {
-                        int distance = Mathf.Abs(owner.cordX - w) + Mathf.Abs(owner.cordY - h);
+						int distance = Mathf.Abs(owner.cordX - w) + Mathf.Abs(owner.cordY - h);
                         if(distance < closestDistance)
                         {
                             closestDistance = distance;
@@ -63,18 +64,18 @@ public class Weapon : MonoBehaviour {
             }
             if(closestEnemyX > owner.cordX)
             {
-                MoveReticleEast();
+                MoveReticleEastInitial();
             }else if(closestEnemyX < owner.cordX)
             {
-                MoveReticleWest();
+                MoveReticleWestInitial();
             }
 
             if(closestEnemyY > owner.cordY)
             {
-                MoveReticleNorth();
+                MoveReticleNorthInitial();
             }else if(closestEnemyY < owner.cordY)
             {
-                MoveReticleSouth();
+                MoveReticleSouthInitial();
             }
             return false;
 		} else if (step == strikeStep) {
@@ -88,7 +89,9 @@ public class Weapon : MonoBehaviour {
 
 	public void lockTarget(){
 		owner.aiming = false;
+		owner.gameController.AddTarget (reticle.cordX, reticle.cordY);
 	}
+		
 	public void Strike(){
 		Debug.Log ("Strike");
 		if (owner.gameController.unitGrid [reticle.cordY * owner.gameController.GetLevelWidth() + reticle.cordX] != null) {
@@ -97,35 +100,58 @@ public class Weapon : MonoBehaviour {
 	}
 
 	public void Reset(){
-		Debug.Log ("Reset");
 		step = 0;
+		if (reticle != null) {
+			//owner.gameController.SubTarget (reticle.cordX, reticle.cordY);
+		}
 		Destroy (myReticleObject); 
 	}
 
 	bool MoveReticle(int x, int y){
-		if (x >= 0 && y >= 0 && x < owner.gameController.GetLevelWidth () && y < owner.gameController.GetLevelHeight ()) {
-			if (x <= owner.cordX + range && x >= owner.cordX - range && y <= owner.cordY + range && y >= owner.cordY - range) {
-				if (x != owner.cordX || y != owner.cordY) {
+		bool canMove = false;
+		if (x <= owner.cordX + range && x >= owner.cordX - range && (y == owner.cordY + range || y == owner.cordY - range)) {
+			canMove = true;
+		}
+		if (y <= owner.cordY + range && y >= owner.cordY - range && (x == owner.cordX + range || x == owner.cordX - range)) {
+			canMove = true;
+		}
+
+		if (canMove) {
+			if (x >= 0 && y >= 0 && x < owner.gameController.GetLevelWidth () && y < owner.gameController.GetLevelHeight ()) {
+				if (x != owner.cordX || y != owner.cordY) {					
 					reticle.cordX = x;
 					reticle.cordY = y;
-                    GameObject t = owner.gameController.tileGrid [reticle.cordY * owner.gameController.GetLevelWidth () + reticle.cordX];
+					GameObject t = owner.gameController.tileGrid [reticle.cordY * owner.gameController.GetLevelWidth () + reticle.cordX];
 					reticle.transform.position = new Vector3 (t.transform.position.x, t.transform.position.y, -3);
-                    return true;
+					return true;
 				}
 			}
 		}
         return false;
 	}
-	public bool MoveReticleNorth(){
+	public bool MoveReticleNorthInitial(){
 		return MoveReticle (reticle.cordX, reticle.cordY + range);
 	}
-	public bool MoveReticleSouth(){
+	public bool MoveReticleSouthInitial(){
         return MoveReticle(reticle.cordX, reticle.cordY - range);
 	}
-	public bool MoveReticleEast(){
+	public bool MoveReticleEastInitial(){
         return MoveReticle(reticle.cordX + range, reticle.cordY);
 	}
-	public bool MoveReticleWest(){
+	public bool MoveReticleWestInitial(){
         return MoveReticle(reticle.cordX - range, reticle.cordY);
 	}
+	public bool MoveReticleNorth(){
+		return MoveReticle (reticle.cordX, reticle.cordY + 1);
+	}
+	public bool MoveReticleSouth(){
+		return MoveReticle(reticle.cordX, reticle.cordY - 1);
+	}
+	public bool MoveReticleEast(){
+		return MoveReticle(reticle.cordX + 1, reticle.cordY);
+	}
+	public bool MoveReticleWest(){
+		return MoveReticle(reticle.cordX - 1, reticle.cordY);
+	}
+
 }
