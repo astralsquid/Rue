@@ -25,9 +25,10 @@ public class Unit : MonoBehaviour {
 		aiming = false;
         weaponObject = Resources.Load("Prefabs/Weapon") as GameObject;
 		age = Random.Range (15, 60);
-		primaryWeapon = GameObject.Instantiate (weaponObject, transform.position, Quaternion.identity).GetComponent<Weapon> ();
+		primaryWeapon = GameObject.Instantiate (weaponObject, new Vector3(transform.position.x, transform.position.y, -5), Quaternion.identity).GetComponent<Weapon> ();
 		primaryWeapon.owner = this;
-		myColor = new Color (Random.Range (.2f, 1f), Random.Range (.2f, 1f), Random.Range (.2f, 1f));
+        primaryWeapon.transform.parent = transform;
+        myColor = new Color (Random.Range (.2f, 1f), Random.Range (.2f, 1f), Random.Range (.2f, 1f));
 		GetComponent<SpriteRenderer> ().color = myColor;
     }
     void Start () {
@@ -37,21 +38,29 @@ public class Unit : MonoBehaviour {
 		gameController.unitList.Add (this);
     }
 
-	// Update is called once per frame
-	void Update () {
+    // Update is called once per frame
+    void Update () {
 
 	}
-	public bool Move(int x, int y){
+	public bool Move(int x, int y, bool moveCamera){
 		if (x < gameController.GetLevelWidth () && y < gameController.GetLevelHeight () && x >= 0 && y >= 0 && gameController.occupationGrid[y*gameController.GetLevelWidth() + x] == 0) {
 			primaryWeapon.Reset ();
 			gameController.unitGrid [cordY * gameController.GetLevelWidth () + cordX] = null;
-			transform.position = new Vector3 ((x - gameController.GetLevelWidth () / 2)-.5f, (y - gameController.GetLevelHeight () / 2)-.5f, transform.position.z);
+			//transform.position = new Vector3 ((x - gameController.GetLevelWidth () / 2)-.5f, (y - gameController.GetLevelHeight () / 2)-.5f, transform.position.z);
 			gameController.SetOccupation (cordX, cordY, 0);
 			cordX = x; 
 			cordY = y;
 			gameController.SetOccupation (cordX, cordY, 1);
 			gameController.unitGrid [cordY * gameController.GetLevelWidth () + cordX] = this;
-			return true;
+
+            Vector3 movePosition = new Vector3((x - gameController.GetLevelWidth() / 2) - .5f, (y - gameController.GetLevelHeight() / 2) - .5f, transform.position.z);
+            StartCoroutine(gameController.MoveToPosition(transform, movePosition, .2f));
+            if (moveCamera)
+            {
+                movePosition = new Vector3((x - gameController.GetLevelWidth() / 2) - .5f, (y - gameController.GetLevelHeight() / 2) - .5f, GameObject.Find("Main Camera").transform.position.z);
+                StartCoroutine(gameController.MoveToPosition(GameObject.Find("Main Camera").transform, movePosition, .2f));
+            }
+            return true;
 		}
 		return false;
 	}
@@ -73,35 +82,44 @@ public class Unit : MonoBehaviour {
 		GetComponent<SpriteRenderer> ().color = new Color (0f, 0f, 0f, 0f);
 	}
 
-	public bool MoveNorth (){
-		return Move (cordX, cordY + 1);
+	public bool MoveNorth (bool moveCamera){
+		return Move (cordX, cordY + 1, moveCamera);
 	}
-	public bool MoveSouth (){
-		return Move (cordX,cordY - 1);
+	public bool MoveSouth (bool moveCamera)
+    {
+		return Move (cordX,cordY - 1, moveCamera);
 	}
-	public bool MoveEast (){
-		return Move (cordX + 1, cordY);
+	public bool MoveEast (bool moveCamera)
+    {
+		return Move (cordX + 1, cordY, moveCamera);
 	}
-	public bool MoveWest (){
-		return Move (cordX - 1, cordY);
+	public bool MoveWest (bool moveCamera)
+    {
+		return Move (cordX - 1, cordY, moveCamera);
 	}
-	public bool MoveNorthEast (){
-		return Move (cordX + 1, cordY + 1);
+	public bool MoveNorthEast (bool moveCamera)
+    {
+		return Move (cordX + 1, cordY + 1, moveCamera);
 	}
-	public bool MoveSouthEast (){
-		return Move (cordX + 1, cordY - 1);
+	public bool MoveSouthEast (bool moveCamera)
+    {
+		return Move (cordX + 1, cordY - 1, moveCamera);
 	}
-	public bool MoveNorthWest (){
-		return Move (cordX - 1, cordY + 1);
+	public bool MoveNorthWest (bool moveCamera)
+    {
+		return Move (cordX - 1, cordY + 1, moveCamera);
 	}
-	public bool MoveSouthWest (){
-		return Move (cordX - 1, cordY - 1);
+	public bool MoveSouthWest (bool moveCamera)
+    {
+		return Move (cordX - 1, cordY - 1, moveCamera);
 	}
-	public bool MoveRandom(){
-		return MoveAdjacent (Random.Range (-1, 2), Random.Range (-1, 2));
+	public bool MoveRandom(bool moveCamera)
+    {
+		return MoveAdjacent (Random.Range (-1, 2), Random.Range (-1, 2), moveCamera);
 	}
-	public bool MoveAdjacent(int x, int y){
-		return Move (cordX + x, cordY + y);
+	public bool MoveAdjacent(int x, int y, bool moveCamera)
+    {
+		return Move (cordX + x, cordY + y, moveCamera);
 	}
 
 

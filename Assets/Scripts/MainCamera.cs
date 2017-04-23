@@ -8,7 +8,7 @@ using System.Collections;
 
 public class MainCamera : MonoBehaviour {
 	public bool followPlayer;
-
+    public PlayerInputController playerInputController;
 	//player to track
 	public GameObject player;
 
@@ -108,15 +108,15 @@ public class MainCamera : MonoBehaviour {
 
 	void Update()
 	{
-		//followPlayer = true;
-		if(!followPlayer) {
-			Debug.Log ("wow");
-			float xAxisValue = Input.GetAxis ("CameraHorizontal") / cameraSpeedCutBy;
-			float yAxisValue = Input.GetAxis ("CameraVertical") / cameraSpeedCutBy;
-			if (Camera.current != null) {
-				Camera.current.transform.Translate (new Vector3 (xAxisValue, yAxisValue, 0.0f));
-			}
-		}
-	}
+        if (playerInputController.cameraLocked == false)
+        {
+            float xAxisValue = Input.GetAxis("CameraHorizontal") / cameraSpeedCutBy;
+            float yAxisValue = Input.GetAxis("CameraVertical") / cameraSpeedCutBy;
+            if (Camera.current != null)
+            {
+                Camera.current.transform.Translate(new Vector3(xAxisValue, yAxisValue, 0.0f));
+            }
+        }
+    }
 }
 

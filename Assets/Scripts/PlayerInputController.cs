@@ -7,7 +7,6 @@ using System.Collections;
 public class PlayerInputController : MonoBehaviour {
 	public Camera camera;
 	public GameController gameController;
-	public bool camera_locked = true;
 	public Unit playerUnit;
 	public bool canMoveNorth;
 	public bool canMoveSouth;
@@ -19,6 +18,9 @@ public class PlayerInputController : MonoBehaviour {
 	public bool canMoveSouthReticle;
 	public bool canMoveEastReticle;
 	public bool canMoveWestReticle;
+    public bool canLockCamera;
+    public bool cameraLocked;
+    public bool inputEnabled;
 	// Use this for initialization
 	void Start () {
 		canMoveNorth = true;
@@ -27,29 +29,42 @@ public class PlayerInputController : MonoBehaviour {
 		canMoveWest = true;
 		canAttack = true;
 		canMoveReticle = true;
-	}
+        cameraLocked = true;
+        inputEnabled = true;
+
+    }
 	// Update is called once per frame
 	void LateUpdate () {
 	}
 	void Update(){
 		ResetCamera ();
-		if (!playerUnit.aiming) {
-			if (ScanForInput ()) {
-				gameController.RunTurn ();
-				if (!playerUnit.aiming) {
-					playerUnit.primaryWeapon.Reset ();
-				}
-			}
-		} else if(ScanForAim()) { //we are aiming
-			gameController.RunTurn();
-			playerUnit.aiming = false;
-		}
+        if (inputEnabled)
+        {
+            if (!playerUnit.aiming)
+            {
+                if (ScanForInput())
+                {
+                    gameController.RunTurn();
+                    if (!playerUnit.aiming)
+                    {
+                        //playerUnit.primaryWeapon.Reset();
+                    }
+                }
+            }
+            else if (ScanForAim())
+            { //we are aiming
+                gameController.RunTurn();
+                playerUnit.aiming = false;
+            }
+        }
 		ResetCamera ();
-
 	}
 
 	void ResetCamera(){
-		camera.transform.position = new Vector3 (playerUnit.transform.position.x, playerUnit.transform.position.y, camera.transform.position.z);
+        if (cameraLocked)
+        {
+            camera.transform.position = new Vector3(playerUnit.transform.position.x, playerUnit.transform.position.y, camera.transform.position.z);
+        }
 	}
 
 	bool ScanForAim(){
@@ -89,31 +104,55 @@ public class PlayerInputController : MonoBehaviour {
 		} else if (Input.GetAxisRaw ("Attack") == 0) {
 			canAttack = true;
 		}
-		return false;
+
+        if (Input.GetAxisRaw("LockCamera") != 0 && canLockCamera)
+        { //lock target
+            cameraLocked = !cameraLocked;
+            canLockCamera = false;
+            return false;
+        }
+        else if (Input.GetAxisRaw("LockCamera") == 0)
+        {
+            canLockCamera = true;
+        }
+        return false;
 	}
 
 	bool ScanForInput(){
-		if (Input.GetAxisRaw ("MoveNorth") != 0 && canMoveNorth) {
+
+        if (Input.GetAxisRaw("LockCamera") != 0 && canLockCamera)
+        { //lock target
+            cameraLocked = !cameraLocked;
+            canLockCamera = false;
+            return false;
+        }
+        else if (Input.GetAxisRaw("LockCamera") == 0)
+        {
+            canLockCamera = true;
+        }
+
+
+        if (Input.GetAxisRaw ("MoveNorth") != 0 && canMoveNorth) {
 			canMoveNorth = false;
-			return playerUnit.MoveNorth ();
+			return playerUnit.MoveNorth (cameraLocked);
 		} else if (Input.GetAxisRaw ("MoveNorth") == 0) {
 			canMoveNorth = true;
 		} 
 		if (Input.GetAxisRaw ("MoveSouth") != 0 && canMoveSouth) {
 			canMoveSouth = false;
-			return playerUnit.MoveSouth ();
+			return playerUnit.MoveSouth (cameraLocked);
 		} else if (Input.GetAxisRaw ("MoveSouth") == 0) {
 			canMoveSouth = true;
 		} 
 		if (Input.GetAxisRaw ("MoveEast") != 0 && canMoveEast) {
 			canMoveEast = false;
-			return playerUnit.MoveEast ();
+			return playerUnit.MoveEast (cameraLocked);
 		} else if (Input.GetAxisRaw ("MoveEast") == 0) {
 			canMoveEast = true;
 		} 
 		if (Input.GetAxisRaw ("MoveWest") != 0 && canMoveWest) {
 			canMoveWest = false;
-			return 	playerUnit.MoveWest ();
+			return 	playerUnit.MoveWest (cameraLocked);
 		} else if (Input.GetAxisRaw ("MoveWest") == 0) {
 			canMoveWest = true;
 		} 

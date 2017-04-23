@@ -33,9 +33,11 @@ public class EnemyController : MonoBehaviour {
 		if (!unit.alive) {
 			gameController.enemyControllers.Remove (this);
 		} else {
-			//move towards nearest unit
-			//Debug.Log("Claiming Move...");
-			claimX = unit.cordX;
+            int rand = Random.Range(0, 100);
+
+            //move towards nearest unit
+            //Debug.Log("Claiming Move...");
+            claimX = unit.cordX;
 			claimY = unit.cordY;
 
 			int nearestDistance = 1000;
@@ -49,34 +51,32 @@ public class EnemyController : MonoBehaviour {
 					nearestDistance = dist;
 					nui = i;
 				} else if (dist == nearestDistance) {
-					int rand1 = Random.Range (0, 100);
-					if (rand1 < 50) {
+					if (rand < 50) {
 						nui = i;
 					}
 				}
 			}
 
-			//if nearest unit is in range, attack
-			int rand2 = Random.Range (0, 100);
-			if (nearestDistance == unit.primaryWeapon.range) { //needs a bandaid
-				if (rand2 < 50) {
+            //if nearest unit is in range, attack
+            if (nearestDistance == unit.primaryWeapon.range) { //needs a bandaid
+                if (rand < 50) {
 					attacking = true;
 					Debug.Log ("perfect range");
 				}
 			} else if (nearestDistance < unit.primaryWeapon.range + 1) { //needs a bandaid
-				if (rand2 < 40) {
+				if (rand < 40) {
 					attacking = true;
 					Debug.Log ("+1 range");
 
 				}
 			} else if (nearestDistance < unit.primaryWeapon.range + 2) { //needs a bandaid
-				if (rand2 < 30) {
+				if (rand < 30) {
 					attacking = true;
 					Debug.Log ("+2 range");
 
 				}
 			} else if (nearestDistance < unit.primaryWeapon.range + 3) { //needs a bandaid
-				if (rand2 < 20) {
+				if (rand < 20) {
 					attacking = true;
 					Debug.Log ("+3 range");
 
@@ -103,7 +103,6 @@ public class EnemyController : MonoBehaviour {
 						claimY = claimY - 1;
 					}
 				}
-				LockInMove ();
 
 			} else if (gameController.GetTarget (unit.cordX, unit.cordY) > 0) {
 				ClaimRandomMove ();
@@ -111,17 +110,11 @@ public class EnemyController : MonoBehaviour {
 		}
 	}
 
-	public void LockInMove(){
-		if (claimX != unit.cordX || claimY != unit.cordY) { //claim the move
-			//gameController.SetOccupation(claimX, claimY, 1);
-			//gameController.SetOccupation (unit.cordX, unit.cordY, 0);
-		}
-	}
 
 	public void TakeTurn(){
 		if (unit.alive) {
 			if (!attacking) {
-				unit.Move (claimX, claimY);
+				unit.Move (claimX, claimY, false);
 			} else {
 				unit.primaryWeapon.Attack ();
 				if (unit.aiming) {
@@ -129,9 +122,6 @@ public class EnemyController : MonoBehaviour {
 				}
 				attacking = false;
 			}
-		} else {
-			//gameController.SetOccupation (claimX, claimY, 0);
-			//gameController.SetOccupation (unit.cordX, unit.cordY, 0);
 		}
 	}
 
@@ -160,7 +150,6 @@ public class EnemyController : MonoBehaviour {
 			}
 			claimX = Random.Range (unit.cordX + xlower, unit.cordX + xupper);
 			claimY = Random.Range (unit.cordY + ylower, unit.cordY + yupper);
-			LockInMove ();
 		}
 	}
 }

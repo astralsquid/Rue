@@ -76,14 +76,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\NameWizard.cs" />
-    <Compile Include="Assets\Resources\Scripts\Armory.cs" />
-    <Compile Include="Assets\Resources\Scripts\EnemyController.cs" />
-    <Compile Include="Assets\Resources\Scripts\GameController.cs" />
-    <Compile Include="Assets\Resources\Scripts\MainCamera.cs" />
-    <Compile Include="Assets\Resources\Scripts\PlayerInputController.cs" />
-    <Compile Include="Assets\Resources\Scripts\Reticle.cs" />
-    <Compile Include="Assets\Resources\Scripts\Unit.cs" />
-    <Compile Include="Assets\Resources\Scripts\Weapon.cs" />
+    <Compile Include="Assets\Scripts\Armory.cs" />
+    <Compile Include="Assets\Scripts\EnemyController.cs" />
+    <Compile Include="Assets\Scripts\GameController.cs" />
+    <Compile Include="Assets\Scripts\MainCamera.cs" />
+    <Compile Include="Assets\Scripts\PlayerInputController.cs" />
+    <Compile Include="Assets\Scripts\Reticle.cs" />
+    <Compile Include="Assets\Scripts\Unit.cs" />
+    <Compile Include="Assets\Scripts\Weapon.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Resources\Words\adj.txt" />

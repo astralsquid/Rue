@@ -12,6 +12,8 @@ public class GameController : MonoBehaviour {
 	enum Direction {North, South, East, West};
 	public enum LevelType {Lava, Snow, Marsh, Desert, Fields};
 
+    public PlayerInputController playerInputController;
+
 	//Objects
 	public GameObject tile;
 	public GameObject exit;
@@ -71,7 +73,7 @@ public class GameController : MonoBehaviour {
 
 
         //spawn player
-        playerUnit.GetComponent<Unit>().Move(width/2,height/2);
+        playerUnit.GetComponent<Unit>().Move(width/2,height/2, false);
 
 		//spawn enemies
 		List<Vector2> coords = new List<Vector2> ();
@@ -96,7 +98,7 @@ public class GameController : MonoBehaviour {
 		for (int i = 0; i < enemies; i++) {
 			GameObject e = GameObject.Instantiate (enemyController, new Vector3 (0, 0, 0), Quaternion.identity);
 			enemyControllers.Add (e.GetComponent<EnemyController>());
-			enemyControllers[enemyControllers.Count-1].unit.Move ((int)coords [i].x, (int)coords [i].y);
+			enemyControllers[enemyControllers.Count-1].unit.Move ((int)coords [i].x, (int)coords [i].y, false);
 		}
 
         //spawn tiles
@@ -154,4 +156,19 @@ public class GameController : MonoBehaviour {
 	public int GetDistanceFromUnit(int i, int x, int y){
 		return Mathf.Abs (unitList [i].cordX - x) + Mathf.Abs (unitList [i].cordY - y);
 	}
+
+    public IEnumerator MoveToPosition(Transform transform, Vector3 position, float timeToMove)
+    {
+        playerInputController.inputEnabled = false;
+        var currentPos = transform.position;
+        var t = 0f;
+        while (t < 1)
+        {
+            t += Time.deltaTime / timeToMove;
+            transform.position = Vector3.Lerp(currentPos, position, t);
+            yield return null;
+        }
+        playerInputController.inputEnabled = true;
+
+    }
 }
