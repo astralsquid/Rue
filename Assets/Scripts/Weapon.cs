@@ -203,12 +203,10 @@ public class Weapon : MonoBehaviour {
 		
 	}
 	public bool MoveReticleSouthInitial(){
-<<<<<<< HEAD
 		if (reticle.cordY > 0) {
-=======
 		if (reticle.cordY - range >= 0) {
->>>>>>> origin/master
 			return MoveReticle (reticle.cordX, reticle.cordY - range);
+		}
 		}
 		return MoveReticleNorthInitial ();
 	}
@@ -219,12 +217,10 @@ public class Weapon : MonoBehaviour {
 		return MoveReticleWestInitial ();
 	}
 	public bool MoveReticleWestInitial(){
-<<<<<<< HEAD
 		if (reticle.cordX  > 0) {
-=======
 		if (reticle.cordX - range >= 0) {
->>>>>>> origin/master
 			return MoveReticle (reticle.cordX - range, reticle.cordY);
+		}
 		}
 		return MoveReticleEastInitial ();
 	}

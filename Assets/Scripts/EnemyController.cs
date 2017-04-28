@@ -10,12 +10,9 @@ public class EnemyController : MonoBehaviour {
 	public int claimY;
 	int dodge;
 
-<<<<<<< HEAD
 
 	Unit myTarget;
-=======
-    Unit myTarget;
->>>>>>> origin/master
+
 
 	// Use this for initialization
 	public GameController gameController;
@@ -100,7 +97,6 @@ public class EnemyController : MonoBehaviour {
 
 	}
 	bool TargetInRange(){
-<<<<<<< HEAD
 		if (myTarget != null) {
 			if (Mathf.Abs(Mathf.Abs (myTarget.cordX - unit.cordX) - unit.primaryWeapon.range) < 2) {
 				if (Mathf.Abs(Mathf.Abs (myTarget.cordY - unit.cordY) - unit.primaryWeapon.range) < 2) {
@@ -109,7 +105,7 @@ public class EnemyController : MonoBehaviour {
 			}
 		}
 		return false;
-=======
+
         int distX = Mathf.Abs(myTarget.cordX - unit.cordX);
         int distY = Mathf.Abs(myTarget.cordY - unit.cordY);
 
@@ -121,32 +117,8 @@ public class EnemyController : MonoBehaviour {
             }
         }
         return false;
->>>>>>> origin/master
 	}
-    void SelectTarget()
-    {
-        int rand = Random.Range(0, 101);
-        int nearestDistance = 1000;
-        int nui = 0; //nearest unit index
-        //search for nearest unit
-        for (int i = 0; i < gameController.unitList.Count; i++)
-        {
-            int dist = gameController.GetDistanceFromUnit(i, unit.cordX, unit.cordY);
-            if (dist < nearestDistance && dist != 0)
-            {
-                nearestDistance = dist;
-                nui = i;
-            }
-            else if (dist == nearestDistance)
-            {
-                if (rand < 50)
-                {
-                    nui = i;
-                }
-            }
-        }
-        myTarget = gameController.unitList[nui];
-    }
+
 	public void ClaimMove(){
 		int rand = Random.Range (0, 100); //used for stat checks 
 		//claim move location, current location by default
@@ -163,39 +135,34 @@ public class EnemyController : MonoBehaviour {
 		if (!attacking && Random.Range(0,101) < 15) {
 			attacking = false;
 			ClaimRandomMove ();
-<<<<<<< HEAD
 		}else if (NeedToDodge ()) {
 			ClaimRandomMove ();
 			attacking = false;
 		}else if (TargetInRange ()) {
-=======
+
 		}
 		//okay I'm safe, who am I going after?
         SelectTarget();
 
 		//can I hit them?	
 		if (TargetInRange ()) {
->>>>>>> origin/master
 			attacking = true;
 			Debug.Log ("attacking");
 		} else { //if not, I need to pick out a spot where I can hit them, and find where to move next
-<<<<<<< HEAD
 			attacking = false;
 			ClaimStrategicMove();
-=======
             PickMoveTowardsTarget();
->>>>>>> origin/master
 		}
 			
 
 	}
-<<<<<<< HEAD
 	public void AimAtTarget(){
 		if (Mathf.Abs (myTarget.cordX - unit.cordX) == unit.primaryWeapon.range && Mathf.Abs (myTarget.cordY - unit.cordY) <= unit.primaryWeapon.range) {
 			unit.primaryWeapon.MoveReticle (myTarget.cordX, myTarget.cordY);
 		}else if (Mathf.Abs (myTarget.cordY - unit.cordY) == unit.primaryWeapon.range && Mathf.Abs (myTarget.cordX - unit.cordX) <= unit.primaryWeapon.range) {
 			unit.primaryWeapon.MoveReticle (myTarget.cordX, myTarget.cordY);
-=======
+		}
+	}
 
     public void PickMoveTowardsTarget()
     {
@@ -276,7 +243,6 @@ public class EnemyController : MonoBehaviour {
 			} else if (gameController.GetTarget (unit.cordX, unit.cordY) > 0) {
 				ClaimRandomMove ();
 			}
->>>>>>> origin/master
 		}
 	}
 		
@@ -296,7 +262,6 @@ public class EnemyController : MonoBehaviour {
 		}
 	}
 
-<<<<<<< HEAD
 	public bool CheckMove(int x, int y){
 		if(unit.cordX + x < gameController.GetLevelWidth() && unit.cordX + x >= 0){
 			if(unit.cordY + y < gameController.GetLevelHeight() && unit.cordY + y >= 0 ){
@@ -307,7 +272,7 @@ public class EnemyController : MonoBehaviour {
 		}
 		return false;
 	}
-=======
+
     bool CheckLocation(int x, int y)
     {
         Debug.Log(gameController.GetLevelHeight());
@@ -320,7 +285,6 @@ public class EnemyController : MonoBehaviour {
         }
         return false;
     }
->>>>>>> origin/master
 
 	public void ClaimRandomMove(){
 		int ylower = 0;
@@ -334,7 +298,6 @@ public class EnemyController : MonoBehaviour {
 		
 		attacking = false;
 		//move out the way!
-<<<<<<< HEAD
 
 		if(CheckMove(1,0)){
 			validMoves.Add(new Vector2(1,0));
@@ -357,9 +320,9 @@ public class EnemyController : MonoBehaviour {
 		if(CheckMove(1,-1)){
 			validMoves.Add(new Vector2(1,-1));
 		}
-		if(CheckMove(-1,-1)){
-			validMoves.Add(new Vector2(-1,-1));
-=======
+		if (CheckMove (-1, -1)) {
+			validMoves.Add (new Vector2 (-1, -1));
+		}
 		if(CheckLocation(0,1)){
 			validMoves.Add(new Vector2(0,1));
         }
@@ -373,7 +336,6 @@ public class EnemyController : MonoBehaviour {
 		if(CheckLocation(-1, 0))
         {
 			validMoves.Add(new Vector2(-1,0));
->>>>>>> origin/master
 		}
         if(CheckLocation(1, 1))
         {
@@ -392,13 +354,10 @@ public class EnemyController : MonoBehaviour {
             validMoves.Add(new Vector2(1, -1));
         }
 
-<<<<<<< HEAD
 		int attempt = 0;
 
-		if (validMoves.Count >= 1) {
-=======
+
         if (validMoves.Count > 0) {
->>>>>>> origin/master
 			int index = Random.Range (0, validMoves.Count);
 			claimX = (int)validMoves [index].x + unit.cordX;
 			claimY = (int)validMoves [index].y + unit.cordY;
