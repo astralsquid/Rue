@@ -8,6 +8,10 @@ using System;
  *  Handles Events
  * */
 public class GameController : MonoBehaviour {
+	//settings
+	public float enemyMovementSpacing;
+	public float runTurnDelay;
+
 	//Enums
 	enum Direction {North, South, East, West};
 	public enum LevelType {Lava, Snow, Marsh, Desert, Fields};
@@ -114,12 +118,16 @@ public class GameController : MonoBehaviour {
         }
 
     }
-	public void RunTurn(){
+	public IEnumerator RunTurn(){
+
 		for (int i = 0; i < enemyControllers.Count; i++) {
 			enemyControllers [i].ClaimMove();
 		}
 		for (int i = 0; i < enemyControllers.Count; i++) {
+			playerInputController.inputEnabled = false;
+			yield return new WaitForSeconds(enemyMovementSpacing);
 			enemyControllers [i].TakeTurn ();
+			playerInputController.inputEnabled = true;
 		}
 	}
 		

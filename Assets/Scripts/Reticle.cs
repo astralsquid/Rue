@@ -5,6 +5,8 @@ using UnityEngine;
 public class Reticle : MonoBehaviour {
 	public int cordX = 0;
 	public int cordY = 0;
+	public Sprite aim_reticle; 
+	public Sprite lock_reticle;
 	// Use this for initialization
 	void Start () {
 		
@@ -13,5 +15,14 @@ public class Reticle : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
+	}
+
+	public void SetReticleAim(){
+		GetComponent<SpriteRenderer> ().sprite = aim_reticle;
+		Debug.Log ("Reticle Aim");
+	}
+	public void SetReticleTarget(){
+		GetComponent<SpriteRenderer> ().sprite = lock_reticle;
+		Debug.Log ("Reticle Target");
 	}
 }

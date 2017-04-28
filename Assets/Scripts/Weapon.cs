@@ -18,7 +18,7 @@ public class Weapon : MonoBehaviour {
     public int savedReticleX;
     public int savedReticleY;
     bool weaponRotLocked;
-
+	public float animationSpeed;
     // Use this for initialization
     void Start () {
         weaponRotLocked = false;
@@ -31,29 +31,25 @@ public class Weapon : MonoBehaviour {
         Reset();
     }
 
-    public IEnumerator Stab(float timeToMove)
+    public IEnumerator Stab(float timePerSquare)
     {
-        weaponRotLocked = true;
+		float timeToMove = timePerSquare * range;
+		owner.gameController.playerInputController.inputEnabled = false;
         Vector3 position = new Vector3(reticle.transform.position.x, reticle.transform.position.y, transform.position.z);
         var currentPos = transform.position;
         var t = 0f;
+		DealDamage ();
         while (t < 1)
         {
-            t += Time.deltaTime / timeToMove;
-            if (t > timeToMove / 2)
-            {
-                transform.position = Vector3.Lerp(position, currentPos, t);
+			owner.gameController.playerInputController.inputEnabled = false;
 
-            }
-            else
-            {
-                transform.position = Vector3.Lerp(currentPos, position, t);
-            }
+			t += Time.deltaTime / (timeToMove);
 
-            if(t >= timeToMove)
+           transform.position = Vector3.Lerp(currentPos, position, t);
+            if(t >= 1)
             {
-               Reset();
-               weaponRotLocked = false;
+                Reset();
+				owner.gameController.playerInputController.inputEnabled = true;
 
             }
             yield return null;
@@ -68,21 +64,7 @@ public class Weapon : MonoBehaviour {
             Vector3 vectorToTarget = reticle.transform.position - transform.position;
             float angle = (Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg) - 90;
             Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
-            transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 10f);
-        }
-    }
-
-    public IEnumerator RotateWeapon(float timeToMove)
-    {
-        var t = 0f;
-        while (t < 1)
-        {
-            t += Time.deltaTime / timeToMove;
-            Vector3 vectorToTarget = reticle.transform.position - transform.position;
-            float angle = (Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg) - 90;
-            Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
-            transform.rotation = Quaternion.Slerp(transform.rotation, q, t);
-            yield return null;
+            transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 8f);
         }
     }
 
@@ -104,17 +86,16 @@ public class Weapon : MonoBehaviour {
             transform.Rotate(0, 0, Random.Range(0, 361));
             myReticleObject = GameObject.Instantiate (reticleObject, owner.transform.position, Quaternion.identity);
 			reticle = myReticleObject.GetComponent<Reticle> ();
-			reticle.GetComponent<SpriteRenderer> ().color = new Color (owner.myColor.r, owner.myColor.g, owner.myColor.b, .2f);
+			reticle.GetComponent<SpriteRenderer> ().color = new Color (owner.myColor.r, owner.myColor.g, owner.myColor.b, .5f);
 				
 			reticle.cordX = owner.cordX;
-			reticle.cordY = owner.cordY ;
+			reticle.cordY = owner.cordY;
+
 			owner.aiming = true;
             Vector3 tempPosition;
             tempPosition = new Vector3(owner.transform.position.x, owner.transform.position.y, -3);
-            reticle.cordX = owner.cordX;
-            reticle.cordY = owner.cordY;
 
-
+			//move reticle in direction of closest enemy by default
             int closestEnemyX = 1000;
             int closestEnemyY = 1000;
             int closestDistance = (2000);
@@ -141,7 +122,6 @@ public class Weapon : MonoBehaviour {
             {
                 MoveReticleWestInitial();
             }
-
             if(closestEnemyY > owner.cordY)
             {
                 MoveReticleNorthInitial();
@@ -149,6 +129,8 @@ public class Weapon : MonoBehaviour {
             {
                 MoveReticleSouthInitial();
             }
+
+
             Vector3 vectorToTarget = reticle.transform.position - transform.position;
             float angle = (Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg) + 90;
             Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
@@ -157,9 +139,7 @@ public class Weapon : MonoBehaviour {
             return false;
 		} else if (step == strikeStep) {
             //strike
-            StartCoroutine(Stab(.5f));
             Strike();
-		    //Reset ();
 		}
 
 		return true;
@@ -168,10 +148,15 @@ public class Weapon : MonoBehaviour {
 	public void lockTarget(){
 		owner.aiming = false;
 		owner.gameController.AddTarget (reticle.cordX, reticle.cordY);
+		reticle.SetReticleTarget ();
 	}
 		
 	public void Strike(){
 		Debug.Log ("Strike");
+		StartCoroutine(Stab(.1f));
+	}
+
+	public void DealDamage(){
 		if (owner.gameController.unitGrid [reticle.cordY * owner.gameController.GetLevelWidth() + reticle.cordX] != null) {
 			owner.gameController.unitGrid [reticle.cordY * owner.gameController.GetLevelWidth() + reticle.cordX].TakeDamage (damage);
 		}
@@ -181,8 +166,9 @@ public class Weapon : MonoBehaviour {
 		step = 0;
 		if (reticle != null) {
 			owner.gameController.SubTarget (reticle.cordX, reticle.cordY);
-            transform.position = new Vector3(owner.transform.position.x, owner.transform.position.y, -4);
-        }
+		}if (owner != null) {
+			transform.position = new Vector3 (owner.transform.position.x, owner.transform.position.y, -4);
+		}
         Destroy (myReticleObject);
         MakeInvisible();
 	}
@@ -204,8 +190,6 @@ public class Weapon : MonoBehaviour {
 					reticle.cordY = y;
 					GameObject t = owner.gameController.tileGrid [reticle.cordY * owner.gameController.GetLevelWidth () + reticle.cordX];
 					reticle.transform.position = new Vector3 (t.transform.position.x, t.transform.position.y, -3);
-                   // StartCoroutine(RotateWeapon(.2f));
-
                     return true;
 				}
 			}
@@ -213,16 +197,29 @@ public class Weapon : MonoBehaviour {
         return false;
 	}
 	public bool MoveReticleNorthInitial(){
-		return MoveReticle (reticle.cordX, reticle.cordY + range);
+		if(reticle.cordY + range < owner.gameController.GetLevelHeight()){
+			return MoveReticle (reticle.cordX, reticle.cordY + range);
+		}
+		return MoveReticleSouthInitial();
+		
 	}
 	public bool MoveReticleSouthInitial(){
-        return MoveReticle(reticle.cordX, reticle.cordY - range);
+		if (reticle.cordY - range > 0) {
+			return MoveReticle (reticle.cordX, reticle.cordY - range);
+		}
+		return MoveReticleNorthInitial ();
 	}
 	public bool MoveReticleEastInitial(){
-        return MoveReticle(reticle.cordX + range, reticle.cordY);
+		if (reticle.cordX + range < owner.gameController.GetLevelWidth ()) {
+			return MoveReticle (reticle.cordX + range, reticle.cordY);
+		}
+		return MoveReticleWestInitial ();
 	}
 	public bool MoveReticleWestInitial(){
-        return MoveReticle(reticle.cordX - range, reticle.cordY);
+		if (reticle.cordX - range > 0) {
+			return MoveReticle (reticle.cordX - range, reticle.cordY);
+		}
+		return MoveReticleEastInitial ();
 	}
 	public bool MoveReticleNorth(){
 		return MoveReticle (reticle.cordX, reticle.cordY + 1);

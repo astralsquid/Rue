@@ -44,16 +44,12 @@ public class PlayerInputController : MonoBehaviour {
             {
                 if (ScanForInput())
                 {
-                    gameController.RunTurn();
-                    if (!playerUnit.aiming)
-                    {
-                        //playerUnit.primaryWeapon.Reset();
-                    }
+					StartCoroutine(gameController.RunTurn());
                 }
             }
             else if (ScanForAim())
             { //we are aiming
-                gameController.RunTurn();
+				StartCoroutine(gameController.RunTurn());
                 playerUnit.aiming = false;
             }
         }
@@ -130,8 +126,6 @@ public class PlayerInputController : MonoBehaviour {
         {
             canLockCamera = true;
         }
-
-
         if (Input.GetAxisRaw ("MoveNorth") != 0 && canMoveNorth) {
 			canMoveNorth = false;
 			return playerUnit.MoveNorth (cameraLocked);
@@ -158,7 +152,11 @@ public class PlayerInputController : MonoBehaviour {
 		} 
 		if (Input.GetAxisRaw ("Attack") != 0 && canAttack) {
 			canAttack = false;
-			return playerUnit.primaryWeapon.Attack ();
+			bool attacked =playerUnit.primaryWeapon.Attack (); 
+				if (playerUnit.aiming) {
+					playerUnit.primaryWeapon.reticle.SetReticleAim ();
+				}
+			return attacked;
 		} else if (Input.GetAxisRaw ("Attack") == 0) {
 			canAttack = true;
 		}
