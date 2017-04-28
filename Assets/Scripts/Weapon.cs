@@ -20,7 +20,7 @@ public class Weapon : MonoBehaviour {
     bool weaponRotLocked;
 	public float animationSpeed;
     // Use this for initialization
-    void Start () {
+    protected void Start () {
         weaponRotLocked = false;
         step = 0;
 		reticleObject = Resources.Load ("Prefabs/Reticle") as GameObject;
@@ -57,7 +57,7 @@ public class Weapon : MonoBehaviour {
 
     }
 
-    void Update()
+    protected void Update()
     {
         if (reticle != null && !weaponRotLocked)
         {
@@ -173,7 +173,7 @@ public class Weapon : MonoBehaviour {
         MakeInvisible();
 	}
 
-	bool MoveReticle(int x, int y){
+	public bool MoveReticle(int x, int y){
         bool canMove = false;
 		if (x <= owner.cordX + range && x >= owner.cordX - range && (y == owner.cordY + range || y == owner.cordY - range)) {
 			canMove = true;
@@ -197,26 +197,26 @@ public class Weapon : MonoBehaviour {
         return false;
 	}
 	public bool MoveReticleNorthInitial(){
-		if(reticle.cordY + range < owner.gameController.GetLevelHeight()){
+		if(reticle.cordY < owner.gameController.GetLevelHeight()){
 			return MoveReticle (reticle.cordX, reticle.cordY + range);
 		}
 		return MoveReticleSouthInitial();
 		
 	}
 	public bool MoveReticleSouthInitial(){
-		if (reticle.cordY - range > 0) {
+		if (reticle.cordY > 0) {
 			return MoveReticle (reticle.cordX, reticle.cordY - range);
 		}
 		return MoveReticleNorthInitial ();
 	}
 	public bool MoveReticleEastInitial(){
-		if (reticle.cordX + range < owner.gameController.GetLevelWidth ()) {
+		if (reticle.cordX  < owner.gameController.GetLevelWidth ()) {
 			return MoveReticle (reticle.cordX + range, reticle.cordY);
 		}
 		return MoveReticleWestInitial ();
 	}
 	public bool MoveReticleWestInitial(){
-		if (reticle.cordX - range > 0) {
+		if (reticle.cordX  > 0) {
 			return MoveReticle (reticle.cordX - range, reticle.cordY);
 		}
 		return MoveReticleEastInitial ();

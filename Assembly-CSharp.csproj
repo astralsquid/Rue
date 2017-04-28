@@ -46,6 +46,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Bolo.cs" />
      <Compile Include="Assets\NameWizard.cs" />
      <Compile Include="Assets\Scripts\Armory.cs" />
      <Compile Include="Assets\Scripts\EnemyController.cs" />
