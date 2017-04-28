@@ -105,7 +105,7 @@ public class Weapon : MonoBehaviour {
                 {
                     if (owner.gameController.occupationGrid[h * owner.gameController.GetLevelWidth() + w] == 1 && (w != owner.cordX || h != owner.cordY))
                     {
-						int distance = Mathf.Abs(owner.cordX - w) + Mathf.Abs(owner.cordY - h);
+						int distance = Mathf.Abs(Mathf.Abs(owner.cordX - w) + Mathf.Abs(owner.cordY - h) - range);
                         if(distance < closestDistance)
                         {
                             closestDistance = distance;
@@ -152,7 +152,6 @@ public class Weapon : MonoBehaviour {
 	}
 		
 	public void Strike(){
-		Debug.Log ("Strike");
 		StartCoroutine(Stab(.1f));
 	}
 
@@ -204,7 +203,11 @@ public class Weapon : MonoBehaviour {
 		
 	}
 	public bool MoveReticleSouthInitial(){
+<<<<<<< HEAD
 		if (reticle.cordY > 0) {
+=======
+		if (reticle.cordY - range >= 0) {
+>>>>>>> origin/master
 			return MoveReticle (reticle.cordX, reticle.cordY - range);
 		}
 		return MoveReticleNorthInitial ();
@@ -216,7 +219,11 @@ public class Weapon : MonoBehaviour {
 		return MoveReticleWestInitial ();
 	}
 	public bool MoveReticleWestInitial(){
+<<<<<<< HEAD
 		if (reticle.cordX  > 0) {
+=======
+		if (reticle.cordX - range >= 0) {
+>>>>>>> origin/master
 			return MoveReticle (reticle.cordX - range, reticle.cordY);
 		}
 		return MoveReticleEastInitial ();
