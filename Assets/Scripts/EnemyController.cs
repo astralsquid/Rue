@@ -10,7 +10,7 @@ public class EnemyController : MonoBehaviour {
 	public int claimY;
 	int dodge;
 
-	Unit myTarget;
+    Unit myTarget;
 
 	// Use this for initialization
 	public GameController gameController;
@@ -33,15 +33,42 @@ public class EnemyController : MonoBehaviour {
 		return gameController.GetTarget (unit.cordX, unit.cordY) > 0;
 	}
 	bool TargetInRange(){
-		if (myTarget != null) {
-			if (Mathf.Abs (myTarget.cordX - unit.cordX) < unit.primaryWeapon.range) {
-				if (Mathf.Abs (myTarget.cordY - unit.cordY) < unit.primaryWeapon.range) {
-					return true;
-				}
-			}
-		}
-		return false;
+        int distX = Mathf.Abs(myTarget.cordX - unit.cordX);
+        int distY = Mathf.Abs(myTarget.cordY - unit.cordY);
+
+        if (myTarget != null)
+        {
+           if(Mathf.Abs(distX - unit.primaryWeapon.range) == 0 && Mathf.Abs(distY - unit.primaryWeapon.range) == 0)
+            { //1 out of range
+                return true;
+            }
+        }
+        return false;
 	}
+    void SelectTarget()
+    {
+        int rand = Random.Range(0, 101);
+        int nearestDistance = 1000;
+        int nui = 0; //nearest unit index
+        //search for nearest unit
+        for (int i = 0; i < gameController.unitList.Count; i++)
+        {
+            int dist = gameController.GetDistanceFromUnit(i, unit.cordX, unit.cordY);
+            if (dist < nearestDistance && dist != 0)
+            {
+                nearestDistance = dist;
+                nui = i;
+            }
+            else if (dist == nearestDistance)
+            {
+                if (rand < 50)
+                {
+                    nui = i;
+                }
+            }
+        }
+        myTarget = gameController.unitList[nui];
+    }
 	public void ClaimMove(){
 		int rand = Random.Range (0, 100); //used for stat checks 
 		//claim move location, current location by default
@@ -53,18 +80,22 @@ public class EnemyController : MonoBehaviour {
 			ClaimRandomMove ();
 		}
 		//okay I'm safe, who am I going after?
-		if (myTarget == null) {
-			//select target
-		}
+        SelectTarget();
+
 		//can I hit them?	
 		if (TargetInRange ()) {
 			attacking = true;
 		} else { //if not, I need to pick out a spot where I can hit them, and find where to move next
-
+            PickMoveTowardsTarget();
 		}
 			
 
 	}
+
+    public void PickMoveTowardsTarget()
+    {
+        
+    }
 
 	public void ClaimMove2(){
 		if (!unit.alive) {
@@ -157,6 +188,19 @@ public class EnemyController : MonoBehaviour {
 		}
 	}
 
+    bool CheckLocation(int x, int y)
+    {
+        Debug.Log(gameController.GetLevelHeight());
+        if (unit.cordX + x  >= 0 && unit.cordX + x < gameController.GetLevelWidth() && unit.cordY + y >= 0 && unit.cordY + y < gameController.GetLevelHeight())
+        {
+            if(gameController.GetOccupation(unit.cordX + x, unit.cordY + y) == 0)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
 	public void ClaimRandomMove(){
 		int ylower = 0;
 		int yupper = 1;
@@ -169,26 +213,38 @@ public class EnemyController : MonoBehaviour {
 		
 		attacking = false;
 		//move out the way!
-		if(unit.cordY + 1< gameController.GetLevelHeight() && gameController.GetOccupation(claimX, claimY + 1) == 0){
-			validY.Add(1);
+		if(CheckLocation(0,1)){
 			validMoves.Add(new Vector2(0,1));
-		}
-		if(unit.cordY - 1 > 0 && gameController.GetOccupation(claimX, claimY - 1) == 0){
-			validY.Add(-1);
+        }
+        if(CheckLocation(0, -1)){
 			validMoves.Add(new Vector2(0,-1));
 		}
-		if(unit.cordX + 1 < gameController.GetLevelWidth() && gameController.GetOccupation(claimX + 1, claimY) == 0  ){
-			validX.Add(1);
+		if(CheckLocation(1, 0))
+        {
 			validMoves.Add(new Vector2(1,0));
 		}
-		if(unit.cordX - 1 > 0 && gameController.GetOccupation(claimX - 1, claimY) == 0){
-			validX.Add(-1);
+		if(CheckLocation(-1, 0))
+        {
 			validMoves.Add(new Vector2(-1,0));
 		}
+        if(CheckLocation(1, 1))
+        {
+            validMoves.Add(new Vector2(1, 1));
+        }
+        if (CheckLocation(-1, 1))
+        {
+            validMoves.Add(new Vector2(-1, 1));
+        }
+        if (CheckLocation(-1, -1))
+        {
+            validMoves.Add(new Vector2(-1, -1));
+        }
+        if (CheckLocation(1, -1))
+        {
+            validMoves.Add(new Vector2(1, -1));
+        }
 
-		int attempt = 0;
-
-		if (validMoves.Count > 1) {
+        if (validMoves.Count > 0) {
 			int index = Random.Range (0, validMoves.Count);
 			claimX = (int)validMoves [index].x + unit.cordX;
 			claimY = (int)validMoves [index].y + unit.cordY;

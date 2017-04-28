@@ -156,13 +156,16 @@ public class GameController : MonoBehaviour {
 		unitGrid [y * levelWidth + x] = null;
 	}
 	public int GetOccupation(int x, int y){
-		return occupationGrid [y * levelWidth + x];
+        if (x >= 0 && x < levelWidth && y >= 0 && y < levelHeight) {
+            return occupationGrid[y * levelWidth + x];
+        }
+        return 1;
 	}
 	public void SetOccupation(int x, int y, int v){
 		occupationGrid [y * levelWidth + x] = v;	
 	}
 	public int GetDistanceFromUnit(int i, int x, int y){
-		return Mathf.Abs (unitList [i].cordX - x) + Mathf.Abs (unitList [i].cordY - y);
+		return Mathf.Max(Mathf.Abs (unitList [i].cordX - x) + Mathf.Abs (unitList [i].cordY - y));
 	}
 
     public IEnumerator MoveToPosition(Transform transform, Vector3 position, float timeToMove)

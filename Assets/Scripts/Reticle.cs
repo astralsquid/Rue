@@ -19,10 +19,8 @@ public class Reticle : MonoBehaviour {
 
 	public void SetReticleAim(){
 		GetComponent<SpriteRenderer> ().sprite = aim_reticle;
-		Debug.Log ("Reticle Aim");
 	}
 	public void SetReticleTarget(){
 		GetComponent<SpriteRenderer> ().sprite = lock_reticle;
-		Debug.Log ("Reticle Target");
 	}
 }
