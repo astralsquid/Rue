@@ -75,6 +75,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Bolo.cs" />
+    <Compile Include="Assets\LineDrawer.cs" />
     <Compile Include="Assets\NameWizard.cs" />
     <Compile Include="Assets\Scripts\Armory.cs" />
     <Compile Include="Assets\Scripts\EnemyController.cs" />
@@ -84,6 +86,7 @@
     <Compile Include="Assets\Scripts\Reticle.cs" />
     <Compile Include="Assets\Scripts\Unit.cs" />
     <Compile Include="Assets\Scripts\Weapon.cs" />
+    <Compile Include="Assets\TargetPanel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Resources\Words\adj.txt" />

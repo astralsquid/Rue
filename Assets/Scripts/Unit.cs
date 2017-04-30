@@ -12,8 +12,10 @@ public class Unit : MonoBehaviour {
 	public Weapon primaryWeapon;
 	public GameController gameController;
 
+
     //flavor info
     public string name;
+    public string wish;
     public int age;
 	public Color myColor;
     // Use this for initialization

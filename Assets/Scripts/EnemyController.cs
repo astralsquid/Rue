@@ -55,7 +55,6 @@ public class EnemyController : MonoBehaviour {
 
 	}
 	void ClaimStrategicMove(){
-		Debug.Log ("claiming strat move");
 		List<Vector2> strategicMoves = new List<Vector2> ();
 		if (myTarget.cordX > unit.cordX + unit.primaryWeapon.range) {
 			strategicMoves.Add(new Vector2(1, 0));
@@ -90,7 +89,7 @@ public class EnemyController : MonoBehaviour {
 			claimX = (int)strategicMoves [index].x + unit.cordX;
 			claimY = (int)strategicMoves [index].y + unit.cordY;
 		} else {
-			Debug.Log ("no valid dodges");
+			Debug.Log ("no strategic moves");
 			claimX = 0 + unit.cordX;
 			claimY = 0 + unit.cordY;
 		}
@@ -98,8 +97,9 @@ public class EnemyController : MonoBehaviour {
 	}
 	bool TargetInRange(){
 		if (myTarget != null) {
-			if (Mathf.Abs(Mathf.Abs (myTarget.cordX - unit.cordX) - unit.primaryWeapon.range) < 2) {
-				if (Mathf.Abs(Mathf.Abs (myTarget.cordY - unit.cordY) - unit.primaryWeapon.range) < 2) {
+			if (Mathf.Abs(Mathf.Abs (myTarget.cordX - unit.cordX) - unit.primaryWeapon.range) <= 1) {
+				if (Mathf.Abs(Mathf.Abs (myTarget.cordY - unit.cordY) - unit.primaryWeapon.range) <= 1) {
+                    Debug.Log("Target in Range!");
 					return true;
 				}
 			}
@@ -139,20 +139,13 @@ public class EnemyController : MonoBehaviour {
 			ClaimRandomMove ();
 			attacking = false;
 		}else if (TargetInRange ()) {
-
-		}
-		//okay I'm safe, who am I going after?
-        SelectTarget();
-
-		//can I hit them?	
-		if (TargetInRange ()) {
-			attacking = true;
-			Debug.Log ("attacking");
-		} else { //if not, I need to pick out a spot where I can hit them, and find where to move next
-			attacking = false;
-			ClaimStrategicMove();
+            attacking = true;
+        }else
+        { //if not, I need to pick out a spot where I can hit them, and find where to move next
+            attacking = false;
+            ClaimStrategicMove();
             PickMoveTowardsTarget();
-		}
+        }
 			
 
 	}
@@ -172,6 +165,8 @@ public class EnemyController : MonoBehaviour {
 	public void ClaimMove2(){
 		if (!unit.alive) {
 			gameController.enemyControllers.Remove (this);
+            Destroy(unit);
+            Destroy(this);
 		} else {
             int rand = Random.Range(0, 100);
 
@@ -275,7 +270,6 @@ public class EnemyController : MonoBehaviour {
 
     bool CheckLocation(int x, int y)
     {
-        Debug.Log(gameController.GetLevelHeight());
         if (unit.cordX + x  >= 0 && unit.cordX + x < gameController.GetLevelWidth() && unit.cordY + y >= 0 && unit.cordY + y < gameController.GetLevelHeight())
         {
             if(gameController.GetOccupation(unit.cordX + x, unit.cordY + y) == 0)
@@ -362,11 +356,9 @@ public class EnemyController : MonoBehaviour {
 			claimX = (int)validMoves [index].x + unit.cordX;
 			claimY = (int)validMoves [index].y + unit.cordY;
 		} else {
-			Debug.Log ("no valid dodges");
 			claimX = 0 + unit.cordX;
 			claimY = 0 + unit.cordY;
 		}
 
-		Debug.Log (claimX + ", " + claimY);
 	}
 }

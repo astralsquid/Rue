@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 //december 2016 or may of 2016
@@ -8,36 +9,64 @@ public class PlayerInputController : MonoBehaviour {
 	public Camera camera;
 	public GameController gameController;
 	public Unit playerUnit;
-	public bool canMoveNorth;
-	public bool canMoveSouth;
-	public bool canMoveEast;
-	public bool canMoveWest;
-	public bool canAttack;
-	public bool canMoveReticle;
-	public bool canMoveNorthReticle;
-	public bool canMoveSouthReticle;
-	public bool canMoveEastReticle;
-	public bool canMoveWestReticle;
-    public bool canLockCamera;
+    Unit target;
+    public GameObject targetPanel;
+    LineRenderer lineRenderer;
+
+    //UI elements
+    public Text targetNameText;
+    public Text targetWishText;
+    public TargetPanel targetPanelScript;
+
+
+
+    int targetIndex = 0;
+	 bool canMoveNorth;
+	 bool canMoveSouth;
+	 bool canMoveEast;
+	 bool canMoveWest;
+	 bool canAttack;
+	 bool canMoveReticle;
+	 bool canMoveNorthReticle;
+	 bool canMoveSouthReticle;
+	 bool canMoveEastReticle;
+	 bool canMoveWestReticle;
+     bool canLockCamera;
+    bool canChangeTarget;
     public bool cameraLocked;
     public bool inputEnabled;
 	// Use this for initialization
 	void Start () {
-		canMoveNorth = true;
-		canMoveSouth = true;
-		canMoveEast = true;
-		canMoveWest = true;
-		canAttack = true;
-		canMoveReticle = true;
-        cameraLocked = true;
-        inputEnabled = true;
-
+        lineRenderer = GetComponent<LineRenderer>();
+        target = playerUnit;
+        ChangeTarget(playerUnit);
     }
-	// Update is called once per frame
-	void LateUpdate () {
-	}
+    void ChangeTarget()
+    {
+        targetIndex++;
+        if(targetIndex > gameController.unitList.Count - 1)
+        {
+            targetIndex = 0;
+        }
+        target = gameController.unitList[targetIndex];
+        FillTargetPanel();
+    }
+    void ChangeTarget(Unit u)
+    {
+        target = u;
+        FillTargetPanel();
+    }
+    void FillTargetPanel()
+    {
+       targetPanelScript.SetTargetSprite(target.GetComponent<SpriteRenderer>());
+        targetNameText.text = target.name;
+        
+    }
+
 	void Update(){
 		ResetCamera ();
+        ScanForInterfaceInputs();
+        DrawLine();
         if (inputEnabled)
         {
             if (!playerUnit.aiming)
@@ -55,6 +84,20 @@ public class PlayerInputController : MonoBehaviour {
         }
 		ResetCamera ();
 	}
+
+
+
+    void ScanForInterfaceInputs()
+    {
+        if(Input.GetAxisRaw("ChangeTarget") != 0 && canChangeTarget)
+        {
+            canChangeTarget = false;
+            ChangeTarget();
+        }else if(Input.GetAxisRaw("ChangeTarget") == 0)
+        {
+            canChangeTarget = true;
+        }
+    }
 
 	void ResetCamera(){
         if (cameraLocked)
@@ -114,7 +157,21 @@ public class PlayerInputController : MonoBehaviour {
         return false;
 	}
 
-	bool ScanForInput(){
+    private void DrawLine()
+    {
+        if (target.alive)
+        {
+            Vector3 unitPosition = new Vector3(target.transform.position.x, target.transform.position.y, target.transform.position.z + 10);
+            Vector3 panelPosition = new Vector3(targetPanel.transform.position.x - 1, targetPanel.transform.position.y - 1, targetPanel.transform.position.z);
+            lineRenderer.SetPosition(0, target.transform.position);
+            lineRenderer.SetPosition(1, panelPosition);
+        }else
+        {
+            ChangeTarget(playerUnit);
+        }
+    }
+
+    bool ScanForInput(){
 
         if (Input.GetAxisRaw("LockCamera") != 0 && canLockCamera)
         { //lock target
