@@ -78,64 +78,80 @@ public class Weapon : MonoBehaviour {
         GetComponent<SpriteRenderer>().color = myColor;
     }
 
+    public void WhipItOut()
+    {
+        MakeVisible();
+        weaponRotLocked = false;
+        transform.Rotate(0, 0, Random.Range(0, 361));
+        myReticleObject = GameObject.Instantiate(reticleObject, owner.transform.position, Quaternion.identity);
+        reticle = myReticleObject.GetComponent<Reticle>();
+        reticle.GetComponent<SpriteRenderer>().color = new Color(owner.myColor.r, owner.myColor.g, owner.myColor.b, .5f);
+
+        reticle.cordX = owner.cordX;
+        reticle.cordY = owner.cordY;
+
+        owner.aiming = true;
+        Vector3 tempPosition;
+        tempPosition = new Vector3(owner.transform.position.x, owner.transform.position.y, -3);
+
+        //move reticle in direction of closest enemy by default
+        int closestEnemyX = 1000;
+        int closestEnemyY = 1000;
+        int closestDistance = (2000);
+        for (int w = 0; w < owner.gameController.GetLevelWidth(); w++)
+        {
+            for (int h = 0; h < owner.gameController.GetLevelHeight(); h++)
+            {
+                if (owner.gameController.occupationGrid[h * owner.gameController.GetLevelWidth() + w] == 1 && (w != owner.cordX || h != owner.cordY))
+                {
+                    int distance = Mathf.Abs(Mathf.Abs(owner.cordX - w) + Mathf.Abs(owner.cordY - h) - range);
+                    if (distance < closestDistance)
+                    {
+                        closestDistance = distance;
+                        closestEnemyX = w;
+                        closestEnemyY = h;
+                    }
+                }
+            }
+        }
+        if (closestEnemyX > owner.cordX)
+        {
+            MoveReticleEastInitial();
+        }
+        else if (closestEnemyX < owner.cordX)
+        {
+            MoveReticleWestInitial();
+        }
+        if (closestEnemyY > owner.cordY)
+        {
+            MoveReticleNorthInitial();
+        }
+        else if (closestEnemyY < owner.cordY)
+        {
+            MoveReticleSouthInitial();
+        }
+
+
+        Vector3 vectorToTarget = reticle.transform.position - transform.position;
+        float angle = (Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg) + 90;
+        Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
+        transform.rotation = Quaternion.Slerp(transform.rotation, q, 1);
+
+    }
+
+    public void TuckItIn()
+    {
+        MakeInvisible();
+        weaponRotLocked = true;
+        Reset();
+    }
+
 	public bool Attack(){
         MakeVisible();
 		step += 1;
 		if (step == aimStep) {
             //aim
-            transform.Rotate(0, 0, Random.Range(0, 361));
-            myReticleObject = GameObject.Instantiate (reticleObject, owner.transform.position, Quaternion.identity);
-			reticle = myReticleObject.GetComponent<Reticle> ();
-			reticle.GetComponent<SpriteRenderer> ().color = new Color (owner.myColor.r, owner.myColor.g, owner.myColor.b, .5f);
-				
-			reticle.cordX = owner.cordX;
-			reticle.cordY = owner.cordY;
-
-			owner.aiming = true;
-            Vector3 tempPosition;
-            tempPosition = new Vector3(owner.transform.position.x, owner.transform.position.y, -3);
-
-			//move reticle in direction of closest enemy by default
-            int closestEnemyX = 1000;
-            int closestEnemyY = 1000;
-            int closestDistance = (2000);
-            for(int w = 0; w < owner.gameController.GetLevelWidth(); w++)
-            {
-                for(int h = 0; h < owner.gameController.GetLevelHeight(); h++)
-                {
-                    if (owner.gameController.occupationGrid[h * owner.gameController.GetLevelWidth() + w] == 1 && (w != owner.cordX || h != owner.cordY))
-                    {
-						int distance = Mathf.Abs(Mathf.Abs(owner.cordX - w) + Mathf.Abs(owner.cordY - h) - range);
-                        if(distance < closestDistance)
-                        {
-                            closestDistance = distance;
-                            closestEnemyX = w;
-                            closestEnemyY = h;
-                        }
-                    }
-                }
-            }
-            if(closestEnemyX > owner.cordX)
-            {
-                MoveReticleEastInitial();
-            }else if(closestEnemyX < owner.cordX)
-            {
-                MoveReticleWestInitial();
-            }
-            if(closestEnemyY > owner.cordY)
-            {
-                MoveReticleNorthInitial();
-            }else if(closestEnemyY < owner.cordY)
-            {
-                MoveReticleSouthInitial();
-            }
-
-
-            Vector3 vectorToTarget = reticle.transform.position - transform.position;
-            float angle = (Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg) + 90;
-            Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
-            transform.rotation = Quaternion.Slerp(transform.rotation, q, 1);
-
+            WhipItOut();
             return false;
 		} else if (step == strikeStep) {
             //strike
