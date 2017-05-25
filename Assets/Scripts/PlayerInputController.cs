@@ -40,6 +40,7 @@ public class PlayerInputController : MonoBehaviour {
         lineRenderer = GetComponent<LineRenderer>();
         target = playerUnit;
         ChangeTarget(playerUnit);
+        inputEnabled = true;
     }
     void ChangeTarget()
     {
@@ -66,7 +67,7 @@ public class PlayerInputController : MonoBehaviour {
 	void Update(){
 		ResetCamera ();
         ScanForInterfaceInputs();
-        DrawLine();
+        //DrawLine();
         if (inputEnabled)
         {
             if (!playerUnit.aiming)
@@ -74,12 +75,14 @@ public class PlayerInputController : MonoBehaviour {
                 if (ScanForInput())
                 {
 					StartCoroutine(gameController.RunTurn());
+                    gameController.ResetReflex();
                 }
             }
             else if (ScanForAim())
             { //we are aiming
 				StartCoroutine(gameController.RunTurn());
                 playerUnit.aiming = false;
+                gameController.ResetReflex();
             }
         }
 		ResetCamera ();
@@ -183,29 +186,21 @@ public class PlayerInputController : MonoBehaviour {
         {
             canLockCamera = true;
         }
-        if (Input.GetAxisRaw ("MoveNorth") != 0 && canMoveNorth) {
+        if (Input.GetAxisRaw ("MoveNorth") != 0 && !playerUnit.moving) {
 			canMoveNorth = false;
 			return playerUnit.MoveNorth (cameraLocked);
-		} else if (Input.GetAxisRaw ("MoveNorth") == 0) {
-			canMoveNorth = true;
 		} 
-		if (Input.GetAxisRaw ("MoveSouth") != 0 && canMoveSouth) {
+		if (Input.GetAxisRaw ("MoveSouth") != 0 && !playerUnit.moving) {
 			canMoveSouth = false;
 			return playerUnit.MoveSouth (cameraLocked);
-		} else if (Input.GetAxisRaw ("MoveSouth") == 0) {
-			canMoveSouth = true;
 		} 
-		if (Input.GetAxisRaw ("MoveEast") != 0 && canMoveEast) {
+		if (Input.GetAxisRaw ("MoveEast") != 0 && !playerUnit.moving) {
 			canMoveEast = false;
 			return playerUnit.MoveEast (cameraLocked);
-		} else if (Input.GetAxisRaw ("MoveEast") == 0) {
-			canMoveEast = true;
 		} 
-		if (Input.GetAxisRaw ("MoveWest") != 0 && canMoveWest) {
+		if (Input.GetAxisRaw ("MoveWest") != 0 && !playerUnit.moving) {
 			canMoveWest = false;
 			return 	playerUnit.MoveWest (cameraLocked);
-		} else if (Input.GetAxisRaw ("MoveWest") == 0) {
-			canMoveWest = true;
 		} 
 		if (Input.GetAxisRaw ("Attack") != 0 && canAttack) {
 			canAttack = false;

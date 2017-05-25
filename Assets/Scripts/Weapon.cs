@@ -6,7 +6,13 @@ public class Weapon : MonoBehaviour {
     public Color myColor;
 	int damage = 1;
 	public GameObject reticleObject;
+
+    public float attack_time = .1f;
+
+    //reticle
 	public Reticle reticle;
+    public List<Reticle> reticles;
+
 	public Unit owner;
 	public GameObject myReticleObject;
 	public int range;
@@ -33,13 +39,15 @@ public class Weapon : MonoBehaviour {
 
     public IEnumerator Stab(float timePerSquare)
     {
+        weaponRotLocked = true;
 		float timeToMove = timePerSquare * range;
 		owner.gameController.playerInputController.inputEnabled = false;
         Vector3 position = new Vector3(reticle.transform.position.x, reticle.transform.position.y, transform.position.z);
         var currentPos = transform.position;
         var t = 0f;
 		DealDamage ();
-        while (t < 1)
+        bool pulling_back = false;
+        while (t < 1 && !pulling_back)
         {
 			owner.gameController.playerInputController.inputEnabled = false;
 
@@ -50,11 +58,11 @@ public class Weapon : MonoBehaviour {
             {
                 Reset();
 				owner.gameController.playerInputController.inputEnabled = true;
+                pulling_back = true;
 
             }
             yield return null;
         }
-
     }
 
     protected void Update()
@@ -78,23 +86,8 @@ public class Weapon : MonoBehaviour {
         GetComponent<SpriteRenderer>().color = myColor;
     }
 
-    public void WhipItOut()
+    private void AutoAim()
     {
-        MakeVisible();
-        weaponRotLocked = false;
-        transform.Rotate(0, 0, Random.Range(0, 361));
-        myReticleObject = GameObject.Instantiate(reticleObject, owner.transform.position, Quaternion.identity);
-        reticle = myReticleObject.GetComponent<Reticle>();
-        reticle.GetComponent<SpriteRenderer>().color = new Color(owner.myColor.r, owner.myColor.g, owner.myColor.b, .5f);
-
-        reticle.cordX = owner.cordX;
-        reticle.cordY = owner.cordY;
-
-        owner.aiming = true;
-        Vector3 tempPosition;
-        tempPosition = new Vector3(owner.transform.position.x, owner.transform.position.y, -3);
-
-        //move reticle in direction of closest enemy by default
         int closestEnemyX = 1000;
         int closestEnemyY = 1000;
         int closestDistance = (2000);
@@ -130,6 +123,27 @@ public class Weapon : MonoBehaviour {
         {
             MoveReticleSouthInitial();
         }
+    }
+
+    public void WhipItOut()
+    {
+        MakeVisible();
+        weaponRotLocked = false;
+        transform.Rotate(0, 0, Random.Range(0, 361));
+        myReticleObject = GameObject.Instantiate(reticleObject, owner.transform.position, Quaternion.identity);
+        reticles = new List<Reticle>();
+        reticle = myReticleObject.GetComponent<Reticle>();
+        reticle.GetComponent<SpriteRenderer>().color = new Color(owner.myColor.r, owner.myColor.g, owner.myColor.b, .5f);
+
+        reticle.cordX = owner.cordX;
+        reticle.cordY = owner.cordY;
+
+        owner.aiming = true;
+        Vector3 tempPosition;
+        tempPosition = new Vector3(owner.transform.position.x, owner.transform.position.y, -3);
+
+        //move reticle in direction of closest enemy by default
+        AutoAim();
 
 
         Vector3 vectorToTarget = reticle.transform.position - transform.position;
@@ -154,7 +168,6 @@ public class Weapon : MonoBehaviour {
             WhipItOut();
             return false;
 		} else if (step == strikeStep) {
-            //strike
             Strike();
 		}
 
@@ -168,7 +181,7 @@ public class Weapon : MonoBehaviour {
 	}
 		
 	public void Strike(){
-		StartCoroutine(Stab(.1f));
+		StartCoroutine(Stab(attack_time));
 	}
 
 	public void DealDamage(){
@@ -193,11 +206,35 @@ public class Weapon : MonoBehaviour {
 		if (x <= owner.cordX + range && x >= owner.cordX - range && (y == owner.cordY + range || y == owner.cordY - range)) {
 			canMove = true;
 		}
-		if (y <= owner.cordY + range && y >= owner.cordY - range && (x == owner.cordX + range || x == owner.cordX - range)) {
+		else if (y <= owner.cordY + range && y >= owner.cordY - range && (x == owner.cordX + range || x == owner.cordX - range)) {
 			canMove = true;
 		}
+        else if(x < range + owner.cordX && x > owner.cordX && reticle.cordY < range + owner.cordY && reticle.cordY > owner.cordY - range)
+        {
+            x += 1; x -= range*2;
+            canMove = true;
+        }
+        else if (x > owner.cordX - range && x < owner.cordX && reticle.cordY < range + owner.cordY && reticle.cordY > owner.cordY - range)
+        {
+            x -= 1; x += range * 2;
+            canMove = true;
+        }
+        else if (y < range + owner.cordY && y > owner.cordY && reticle.cordX < range + owner.cordX && reticle.cordX > owner.cordX - range)
+        {
+            y += 1; y -= range * 2;
+            canMove = true;
+        }
+        else if (y > owner.cordY - range && y < owner.cordY && reticle.cordX < range + owner.cordX && reticle.cordX > owner.cordX - range)
+        {
+            y -= 1; y += range * 2;
+            canMove = true;
+        }
 
-		if (canMove) {
+
+
+
+
+        if (canMove) {
 
             if (x >= 0 && y >= 0 && x < owner.gameController.GetLevelWidth () && y < owner.gameController.GetLevelHeight ()) {
 				if (x != owner.cordX || y != owner.cordY) {					
@@ -252,5 +289,4 @@ public class Weapon : MonoBehaviour {
 	public bool MoveReticleWest(){
 		return MoveReticle(reticle.cordX - 1, reticle.cordY);
 	}
-
 }

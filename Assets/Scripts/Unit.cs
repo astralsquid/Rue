@@ -3,6 +3,7 @@ using System.Collections;
 
 public class Unit : MonoBehaviour {
 	int hp;
+    public bool moving;
 	public bool alive;
 	public bool aiming;
 	public int cordX;
@@ -20,6 +21,7 @@ public class Unit : MonoBehaviour {
 	public Color myColor;
     // Use this for initialization
     void Awake(){
+        moving = false;
 		hp = 1;
 		gameController = GameObject.Find ("GameController").GetComponent<GameController>();
 		cordX = 0;
@@ -27,7 +29,9 @@ public class Unit : MonoBehaviour {
 		aiming = false;
         weaponObject = Resources.Load("Prefabs/Weapon") as GameObject;
 		age = Random.Range (15, 60);
-		primaryWeapon = GameObject.Instantiate (weaponObject, new Vector3(transform.position.x, transform.position.y, -5), Quaternion.identity).GetComponent<Weapon> ();
+
+        GameObject primary_weapon_object = GameObject.Find("WeaponManager").GetComponent<WeaponManager>().GetRandomWeapon();
+		primaryWeapon = GameObject.Instantiate (primary_weapon_object, new Vector3(transform.position.x, transform.position.y, -5), Quaternion.identity).GetComponent<Weapon> ();
 		primaryWeapon.owner = this;
         primaryWeapon.transform.parent = transform;
         myColor = new Color (Random.Range (.2f, 1f), Random.Range (.2f, 1f), Random.Range (.2f, 1f));
@@ -56,11 +60,11 @@ public class Unit : MonoBehaviour {
 			gameController.unitGrid [cordY * gameController.GetLevelWidth () + cordX] = this;
 
             Vector3 movePosition = new Vector3((x - gameController.GetLevelWidth() / 2) - .5f, (y - gameController.GetLevelHeight() / 2) - .5f, transform.position.z);
-            StartCoroutine(gameController.MoveToPosition(transform, movePosition, .2f));
+            StartCoroutine(MoveToPosition(transform, movePosition, .2f));
             if (moveCamera)
             {
                 movePosition = new Vector3((x - gameController.GetLevelWidth() / 2) - .5f, (y - gameController.GetLevelHeight() / 2) - .5f, GameObject.Find("Main Camera").transform.position.z);
-                StartCoroutine(gameController.MoveToPosition(GameObject.Find("Main Camera").transform, movePosition, .2f));
+                StartCoroutine(MoveToPosition(GameObject.Find("Main Camera").transform, movePosition, .2f));
             }
             return true;
 		}
@@ -124,5 +128,18 @@ public class Unit : MonoBehaviour {
 		return Move (cordX + x, cordY + y, moveCamera);
 	}
 
+    public IEnumerator MoveToPosition(Transform transform, Vector3 position, float timeToMove)
+    {
 
+        moving = true;
+        var currentPos = transform.position;
+        var t = 0f;
+        while (t < 1)
+        {
+            t += Time.deltaTime / timeToMove;
+            transform.position = Vector3.Lerp(currentPos, position, t);
+            yield return null;
+        }
+        moving = false;
+    }
 }

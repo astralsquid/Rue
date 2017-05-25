@@ -7,13 +7,24 @@ using System;
  *  Handles Enemy Movement
  *  Handles Events
  * */
+
 public class GameController : MonoBehaviour {
 	//settings
 	public float enemyMovementSpacing;
 	public float runTurnDelay;
+    public Color tile_color_bound_1;
+    public Color tile_color_bound_2;
 
-	//Enums
-	enum Direction {North, South, East, West};
+    //reflex
+    public float reflex = 3.0f;
+    float current_reflex = 3.0f;
+    public GameObject reflex_bar;
+    float reflex_bar_max_width;
+    float reflex_bar_max_height;
+
+
+    //Enums
+    enum Direction {North, South, East, West};
 	public enum LevelType {Lava, Snow, Marsh, Desert, Fields};
 
     public PlayerInputController playerInputController;
@@ -45,8 +56,12 @@ public class GameController : MonoBehaviour {
 
     void Awake(){
 		unitList = new List<Unit> ();
+        reflex_bar_max_height = reflex_bar.GetComponent<RectTransform>().sizeDelta.y;
+        reflex_bar_max_width = reflex_bar.GetComponent<RectTransform>().sizeDelta.x;
 
-	}
+
+
+    }
 
 	void Start () {
 		enemyControllers = new List<EnemyController> ();
@@ -58,6 +73,7 @@ public class GameController : MonoBehaviour {
 	}
 	// Update is called once per frame
 	void Update () {
+        TickReflex();
 	}
 	public void ChangeLevel(LevelType type, int width, int height){
 		//set width and height
@@ -111,8 +127,7 @@ public class GameController : MonoBehaviour {
             for (int x = 0; x < width; x++)
             {
                 GameObject spawnedTile = Instantiate(tile, new Vector3(x - (width) / 2f, y - (height) / 2f, 0), Quaternion.identity) as GameObject;
-                float tone = UnityEngine.Random.Range(0f, .05f);
-                spawnedTile.GetComponent<SpriteRenderer>().color = new Color(tone, tone, tone, .5f);
+                spawnedTile.GetComponent<SpriteRenderer>().color = Color.Lerp(tile_color_bound_1, tile_color_bound_2, UnityEngine.Random.Range(0.0f, 1.0f));
                 tileGrid[y * width + x] = spawnedTile;
             }
         }
@@ -168,18 +183,27 @@ public class GameController : MonoBehaviour {
 		return Mathf.Max(Mathf.Abs (unitList [i].cordX - x) + Mathf.Abs (unitList [i].cordY - y));
 	}
 
-    public IEnumerator MoveToPosition(Transform transform, Vector3 position, float timeToMove)
+    void TickReflex()
     {
-        playerInputController.inputEnabled = false;
-        var currentPos = transform.position;
-        var t = 0f;
-        while (t < 1)
+        current_reflex -= Time.deltaTime;
+        if(current_reflex > 0)
         {
-            t += Time.deltaTime / timeToMove;
-            transform.position = Vector3.Lerp(currentPos, position, t);
-            yield return null;
+            reflex_bar.GetComponent<RectTransform>().sizeDelta = new Vector2(reflex_bar_max_width * (current_reflex/reflex), reflex_bar_max_height);
+        }else
+        {
+            current_reflex = reflex;
+            if (reflex > .05f)
+            {
+                reflex = 0.9f * reflex;
+            }
+            reflex_bar.GetComponent<RectTransform>().sizeDelta = new Vector2(reflex_bar_max_width, reflex_bar_max_height);
+            StartCoroutine(RunTurn());
+            ResetReflex();
         }
-        playerInputController.inputEnabled = true;
+    }
 
+    public void ResetReflex()
+    {
+        current_reflex = reflex;
     }
 }
