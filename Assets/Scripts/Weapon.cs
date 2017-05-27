@@ -13,6 +13,9 @@ public class Weapon : MonoBehaviour {
 	public Reticle reticle;
     public List<Reticle> reticles;
 
+    //range this is a problem for later
+    //public Sprite range_sprite;
+
 	public Unit owner;
 	public GameObject myReticleObject;
 	public int range;
@@ -41,7 +44,7 @@ public class Weapon : MonoBehaviour {
     {
         weaponRotLocked = true;
 		float timeToMove = timePerSquare * range;
-		owner.gameController.playerInputController.inputEnabled = false;
+        owner.gameController.playerInputController.DisableInput();
         Vector3 position = new Vector3(reticle.transform.position.x, reticle.transform.position.y, transform.position.z);
         var currentPos = transform.position;
         var t = 0f;
@@ -49,7 +52,7 @@ public class Weapon : MonoBehaviour {
         bool pulling_back = false;
         while (t < 1 && !pulling_back)
         {
-			owner.gameController.playerInputController.inputEnabled = false;
+            owner.gameController.playerInputController.DisableInput();
 
 			t += Time.deltaTime / (timeToMove);
 
@@ -57,9 +60,8 @@ public class Weapon : MonoBehaviour {
             if(t >= 1)
             {
                 Reset();
-				owner.gameController.playerInputController.inputEnabled = true;
+                owner.gameController.playerInputController.EnableInput();
                 pulling_back = true;
-
             }
             yield return null;
         }
@@ -229,10 +231,6 @@ public class Weapon : MonoBehaviour {
             y -= 1; y += range * 2;
             canMove = true;
         }
-
-
-
-
 
         if (canMove) {
 

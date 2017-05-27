@@ -22,6 +22,8 @@ public class GameController : MonoBehaviour {
     float reflex_bar_max_width;
     float reflex_bar_max_height;
 
+    //elevator
+    public Elevator elevator;
 
     //Enums
     enum Direction {North, South, East, West};
@@ -58,9 +60,6 @@ public class GameController : MonoBehaviour {
 		unitList = new List<Unit> ();
         reflex_bar_max_height = reflex_bar.GetComponent<RectTransform>().sizeDelta.y;
         reflex_bar_max_width = reflex_bar.GetComponent<RectTransform>().sizeDelta.x;
-
-
-
     }
 
 	void Start () {
@@ -70,7 +69,9 @@ public class GameController : MonoBehaviour {
 		occupationGrid = new int[0];
 		tileGrid = new GameObject[0];
 		ChangeLevel (LevelType.Fields, levelWidth, levelHeight);
+        StartCoroutine(elevator.Lower(5.0f, true));
 	}
+
 	// Update is called once per frame
 	void Update () {
         TickReflex();
@@ -90,7 +91,6 @@ public class GameController : MonoBehaviour {
 		unitGrid = new Unit[width*height];
 		tileGrid = new GameObject[width*height];
         occupationGrid = new int[width * height];
-
 
         //spawn player
         playerUnit.GetComponent<Unit>().Move(width/2,height/2, false);
@@ -139,10 +139,10 @@ public class GameController : MonoBehaviour {
 			enemyControllers [i].ClaimMove();
 		}
 		for (int i = 0; i < enemyControllers.Count; i++) {
-			playerInputController.inputEnabled = false;
+            playerInputController.DisableInput();
 			yield return new WaitForSeconds(enemyMovementSpacing);
 			enemyControllers [i].TakeTurn ();
-			playerInputController.inputEnabled = true;
+            playerInputController.EnableInput();
 		}
 	}
 		
@@ -205,5 +205,13 @@ public class GameController : MonoBehaviour {
     public void ResetReflex()
     {
         current_reflex = reflex;
+    }
+    public GameObject GetTile(int x, int y)
+    {
+        return tileGrid[y * levelWidth + x];
+    }
+    public GameObject GetMiddleTile()
+    {
+        return tileGrid[levelWidth/2 * levelWidth + levelHeight/2];
     }
 }

@@ -34,7 +34,7 @@ public class PlayerInputController : MonoBehaviour {
      bool canLockCamera;
     bool canChangeTarget;
     public bool cameraLocked;
-    public bool inputEnabled;
+    bool inputEnabled;
 	// Use this for initialization
 	void Start () {
         lineRenderer = GetComponent<LineRenderer>();
@@ -214,5 +214,12 @@ public class PlayerInputController : MonoBehaviour {
 		}
 		return false;
 	}
-
+    public void EnableInput()
+    {
+        inputEnabled = true;
+    }
+    public void DisableInput()
+    {
+        inputEnabled = false;
+    }
 }

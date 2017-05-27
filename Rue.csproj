@@ -87,6 +87,7 @@
     <Compile Include="Assets\Bolo.cs" />
     <Compile Include="Assets\ButtonController.cs" />
     <Compile Include="Assets\ButtonMover.cs" />
+    <Compile Include="Assets\Elevator.cs" />
     <Compile Include="Assets\LineDrawer.cs" />
     <Compile Include="Assets\NameWizard.cs" />
     <Compile Include="Assets\Scripts\Armory.cs" />
