@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using UnityEngine.UI;
 
 /*	Creates / Stores World
  *  Handles Enemy Movement
@@ -21,6 +22,8 @@ public class GameController : MonoBehaviour {
     public GameObject reflex_bar;
     float reflex_bar_max_width;
     float reflex_bar_max_height;
+    bool reflex_stopped;
+    public Color reflex_color;
 
     //elevator
     public Elevator elevator;
@@ -47,6 +50,10 @@ public class GameController : MonoBehaviour {
 	public int levelHeight;
 	public int levelWidth;
 
+    //win info
+    bool level_won = false;
+    bool elevator_called;
+
 	//Storage
 	public GameObject[] tileGrid;
 	public Unit[] unitGrid;
@@ -57,9 +64,11 @@ public class GameController : MonoBehaviour {
 	public List<Unit> unitList;
 
     void Awake(){
+        reflex_stopped = true;
 		unitList = new List<Unit> ();
         reflex_bar_max_height = reflex_bar.GetComponent<RectTransform>().sizeDelta.y;
         reflex_bar_max_width = reflex_bar.GetComponent<RectTransform>().sizeDelta.x;
+        //reflex_bar.transform.position = new Vector3(0, Screen.height, -9);
     }
 
 	void Start () {
@@ -69,7 +78,7 @@ public class GameController : MonoBehaviour {
 		occupationGrid = new int[0];
 		tileGrid = new GameObject[0];
 		ChangeLevel (LevelType.Fields, levelWidth, levelHeight);
-        StartCoroutine(elevator.Lower(5.0f, true));
+        StartCoroutine(elevator.Lower(true));
 	}
 
 	// Update is called once per frame
@@ -133,18 +142,44 @@ public class GameController : MonoBehaviour {
         }
 
     }
-	public IEnumerator RunTurn(){
 
+
+	public IEnumerator RunTurn(){
+        level_won = true;
 		for (int i = 0; i < enemyControllers.Count; i++) {
 			enemyControllers [i].ClaimMove();
 		}
 		for (int i = 0; i < enemyControllers.Count; i++) {
             playerInputController.DisableInput();
 			yield return new WaitForSeconds(enemyMovementSpacing);
-			enemyControllers [i].TakeTurn ();
+            enemyControllers[i].TakeTurn();
             playerInputController.EnableInput();
 		}
-	}
+        for (int i = 0; i < enemyControllers.Count; i++)
+        {
+            if (enemyControllers[i].unit.alive)
+            {
+                level_won = false;
+            }
+        }
+
+        if (level_won && !elevator_called)
+        {
+            elevator_called = true;
+            StartCoroutine(elevator.Lower(false));
+        }
+
+        if(playerUnit.cordX == levelWidth/2 && playerUnit.cordY == levelHeight/2 && level_won && elevator.elevator_lowered)
+        {
+            StartCoroutine(EndLevel());
+        }
+    }
+
+    IEnumerator EndLevel()
+    {
+        yield return new WaitForSeconds(1);
+        StartCoroutine(elevator.Raise(true));
+    }
 		
 	public void AddTarget(int x, int y){
 		targetGrid [y * levelWidth + x] += 1;
@@ -185,26 +220,43 @@ public class GameController : MonoBehaviour {
 
     void TickReflex()
     {
-        current_reflex -= Time.deltaTime;
-        if(current_reflex > 0)
+        if (!reflex_stopped)
         {
-            reflex_bar.GetComponent<RectTransform>().sizeDelta = new Vector2(reflex_bar_max_width * (current_reflex/reflex), reflex_bar_max_height);
-        }else
-        {
-            current_reflex = reflex;
-            if (reflex > .05f)
+            current_reflex -= Time.deltaTime;
+            if (current_reflex > 0)
             {
-                reflex = 0.9f * reflex;
+                reflex_bar.GetComponent<RectTransform>().sizeDelta = new Vector2(reflex_bar_max_width * (current_reflex / reflex), reflex_bar_max_height);
             }
-            reflex_bar.GetComponent<RectTransform>().sizeDelta = new Vector2(reflex_bar_max_width, reflex_bar_max_height);
-            StartCoroutine(RunTurn());
-            ResetReflex();
+            else
+            {
+                current_reflex = reflex;
+                if (reflex > .05f)
+                {
+                    reflex = 0.9f * reflex;
+                }
+                reflex_bar.GetComponent<RectTransform>().sizeDelta = new Vector2(reflex_bar_max_width, reflex_bar_max_height);
+                StartCoroutine(RunTurn());
+                ResetReflex();
+            }
         }
+    }
+
+    public void StopReflex()
+    {
+        current_reflex = reflex;
+        reflex_stopped = true;
+        reflex_bar.GetComponent<Image>().color = new Color(0, 0, 0, 0);
     }
 
     public void ResetReflex()
     {
+        
         current_reflex = reflex;
+        if (!level_won)
+        {
+            reflex_stopped = false;
+            reflex_bar.GetComponent<Image>().color = reflex_color;
+        }
     }
     public GameObject GetTile(int x, int y)
     {

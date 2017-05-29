@@ -211,22 +211,23 @@ public class Weapon : MonoBehaviour {
 		else if (y <= owner.cordY + range && y >= owner.cordY - range && (x == owner.cordX + range || x == owner.cordX - range)) {
 			canMove = true;
 		}
-        else if(x < range + owner.cordX && x > owner.cordX && reticle.cordY < range + owner.cordY && reticle.cordY > owner.cordY - range)
+        else if(x < range + owner.cordX && (x >= owner.cordX && reticle.cordX > owner.cordX) && reticle.cordY < range + owner.cordY && reticle.cordY > owner.cordY - range)
         {
             x += 1; x -= range*2;
+            Debug.Log("1");
             canMove = true;
         }
-        else if (x > owner.cordX - range && x < owner.cordX && reticle.cordY < range + owner.cordY && reticle.cordY > owner.cordY - range)
+        else if (x > owner.cordX - range && (x <= owner.cordX && reticle.cordX < owner.cordX) && reticle.cordY < range + owner.cordY && reticle.cordY > owner.cordY - range)
         {
             x -= 1; x += range * 2;
+            Debug.Log("2");
             canMove = true;
-        }
-        else if (y < range + owner.cordY && y > owner.cordY && reticle.cordX < range + owner.cordX && reticle.cordX > owner.cordX - range)
+        }else if (y < range + owner.cordY && (y >= owner.cordY && reticle.cordY > owner.cordY) && reticle.cordX < range + owner.cordX && reticle.cordX > owner.cordX - range)
         {
             y += 1; y -= range * 2;
             canMove = true;
         }
-        else if (y > owner.cordY - range && y < owner.cordY && reticle.cordX < range + owner.cordX && reticle.cordX > owner.cordX - range)
+        else if (y > owner.cordY - range && (y <= owner.cordY && reticle.cordY < owner.cordY) && reticle.cordX < range + owner.cordX && reticle.cordX > owner.cordX - range)
         {
             y -= 1; y += range * 2;
             canMove = true;

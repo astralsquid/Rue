@@ -19,7 +19,7 @@ public class PlayerInputController : MonoBehaviour {
     public TargetPanel targetPanelScript;
 
 
-
+    bool first_move;
     int targetIndex = 0;
 	 bool canMoveNorth;
 	 bool canMoveSouth;
@@ -37,6 +37,7 @@ public class PlayerInputController : MonoBehaviour {
     bool inputEnabled;
 	// Use this for initialization
 	void Start () {
+        first_move = true;
         lineRenderer = GetComponent<LineRenderer>();
         target = playerUnit;
         ChangeTarget(playerUnit);
@@ -74,15 +75,20 @@ public class PlayerInputController : MonoBehaviour {
             {
                 if (ScanForInput())
                 {
-					StartCoroutine(gameController.RunTurn());
+                    if (first_move)
+                    {
+                        StartCoroutine(gameController.elevator.Raise(false));
+                        first_move = false;
+                    }
                     gameController.ResetReflex();
+                    StartCoroutine(gameController.RunTurn());
                 }
             }
-            else if (ScanForAim())
+            else if (ScanForAim() && ! first_move)
             { //we are aiming
-				StartCoroutine(gameController.RunTurn());
-                playerUnit.aiming = false;
                 gameController.ResetReflex();
+                StartCoroutine(gameController.RunTurn());
+                playerUnit.aiming = false;
             }
         }
 		ResetCamera ();

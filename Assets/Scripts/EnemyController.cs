@@ -13,7 +13,6 @@ public class EnemyController : MonoBehaviour {
 
 	Unit myTarget;
 
-
 	// Use this for initialization
 	public GameController gameController;
 	void Awake(){
@@ -32,7 +31,8 @@ public class EnemyController : MonoBehaviour {
 	}
 
 	bool NeedToDodge(){
-		return gameController.GetTarget (unit.cordX, unit.cordY) > 0;
+        //return gameController.GetTarget (unit.cordX, unit.cordY) > 0;
+        return false;
 	}
 	void SelectTarget(){
 		int rand = Random.Range (0, 101);
@@ -68,7 +68,6 @@ public class EnemyController : MonoBehaviour {
 		if (myTarget.cordX > unit.cordX - unit.primaryWeapon.range && myTarget.cordX < unit.cordX) {
 			strategicMoves.Add(new Vector2(1, 0));
 		}
-
 		if (myTarget.cordY > unit.cordY + unit.primaryWeapon.range) {
 			strategicMoves.Add(new Vector2(0, 1));
 		}
@@ -81,8 +80,6 @@ public class EnemyController : MonoBehaviour {
 		if (myTarget.cordY > unit.cordY - unit.primaryWeapon.range && myTarget.cordY < unit.cordY) {
 			strategicMoves.Add(new Vector2(0, 1));
 		}
-
-
 
 		if (strategicMoves.Count >= 1) {
 			int index = Random.Range (0, strategicMoves.Count);
@@ -146,8 +143,6 @@ public class EnemyController : MonoBehaviour {
             ClaimStrategicMove();
             PickMoveTowardsTarget();
         }
-			
-
 	}
 	public void AimAtTarget(){
 		if (Mathf.Abs (myTarget.cordX - unit.cordX) == unit.primaryWeapon.range && Mathf.Abs (myTarget.cordY - unit.cordY) <= unit.primaryWeapon.range) {
