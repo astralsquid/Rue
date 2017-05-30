@@ -78,8 +78,23 @@ public class GameController : MonoBehaviour {
 		occupationGrid = new int[0];
 		tileGrid = new GameObject[0];
 		ChangeLevel (LevelType.Fields, levelWidth, levelHeight);
+        LoadPlayerProfile();
         StartCoroutine(elevator.Lower(true));
 	}
+
+    void LoadPlayerProfile()
+    {
+        string profileString = System.IO.File.ReadAllText(PlayerPrefs.GetString("savePath") + PlayerPrefs.GetString("profile") + "/profile.json");
+        PlayerProfile playerProfile = JsonUtility.FromJson<PlayerProfile>(profileString);
+        playerUnit.SetColor(playerProfile.myUnit.myColor);
+        playerUnit.SetName(playerProfile.myUnit.name);
+        playerUnit.SetWish(playerProfile.myUnit.wish);
+        Debug.Log(profileString);
+    }
+    void SavePlayerProfile()
+    {
+        
+    }
 
 	// Update is called once per frame
 	void Update () {

@@ -18,7 +18,7 @@ public class Unit : MonoBehaviour {
     public string name;
     public string wish;
     public int age;
-	public Color myColor;
+	public Color my_color;
     // Use this for initialization
     void Awake(){
         moving = false;
@@ -34,8 +34,8 @@ public class Unit : MonoBehaviour {
 		primaryWeapon = GameObject.Instantiate (primary_weapon_object, new Vector3(transform.position.x, transform.position.y, -5), Quaternion.identity).GetComponent<Weapon> ();
 		primaryWeapon.owner = this;
         primaryWeapon.transform.parent = transform;
-        myColor = new Color (Random.Range (.2f, 1f), Random.Range (.2f, 1f), Random.Range (.2f, 1f));
-		GetComponent<SpriteRenderer> ().color = myColor;
+        my_color = new Color (Random.Range (.2f, 1f), Random.Range (.2f, 1f), Random.Range (.2f, 1f));
+		GetComponent<SpriteRenderer> ().color = my_color;
     }
     void Start () {
 		alive = true;
@@ -48,6 +48,22 @@ public class Unit : MonoBehaviour {
     void Update () {
 
 	}
+
+    public void SetColor(Color c)
+    {
+        my_color = c;
+        GetComponent<SpriteRenderer>().color = my_color;
+    }
+
+    public void SetName(string n)
+    {
+        name = n;
+    }
+
+    public void SetWish(string w)
+    {
+        wish = w;
+    }
 	public bool Move(int x, int y, bool moveCamera){
 		if (x < gameController.GetLevelWidth () && y < gameController.GetLevelHeight () && x >= 0 && y >= 0 && gameController.occupationGrid[y*gameController.GetLevelWidth() + x] == 0) {
 			primaryWeapon.Reset ();

@@ -4,15 +4,16 @@ using UnityEngine;
 
 public class Weapon : MonoBehaviour {
     public Color myColor;
-	int damage = 1;
-	public GameObject reticleObject;
+    int damage = 1;
+    public GameObject reticleObject;
 
     public float attack_time = .1f;
 
     //reticle
-	public Reticle reticle;
+    public Reticle reticle;
     public List<Reticle> reticles;
-
+    protected enum weaponType{other, sword, spear };
+    weaponType myType = weaponType.other;
     //range this is a problem for later
     //public Sprite range_sprite;
 
@@ -135,7 +136,7 @@ public class Weapon : MonoBehaviour {
         myReticleObject = GameObject.Instantiate(reticleObject, owner.transform.position, Quaternion.identity);
         reticles = new List<Reticle>();
         reticle = myReticleObject.GetComponent<Reticle>();
-        reticle.GetComponent<SpriteRenderer>().color = new Color(owner.myColor.r, owner.myColor.g, owner.myColor.b, .5f);
+        reticle.GetComponent<SpriteRenderer>().color = new Color(owner.my_color.r, owner.my_color.g, owner.my_color.b, .5f);
 
         reticle.cordX = owner.cordX;
         reticle.cordY = owner.cordY;
