@@ -17,4 +17,20 @@ public class UnitCereal{
         myColor = new Color(1, 1, 1);
         weapon = new WeaponCereal();
     }
+    public UnitCereal(Unit unit)
+    {
+        name = unit.name;
+        wish = unit.wish;
+        age = unit.age;
+        myColor = unit.my_color;
+        weapon = new WeaponCereal(unit.primaryWeapon);
+    }
+    public void Convert(Unit unit)
+    {
+        name = unit.name;
+        wish = unit.wish;
+        age = unit.age;
+        myColor = unit.my_color;
+        weapon = new WeaponCereal(unit.primaryWeapon);
+    }
 }

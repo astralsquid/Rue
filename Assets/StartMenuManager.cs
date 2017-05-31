@@ -87,13 +87,17 @@ public class StartMenuManager : MonoBehaviour {
         newProfile.myUnit.wish = nameText.text;
         newProfile.myUnit.myColor = myColor;
         PlayerPrefs.SetString("profile", nameText.text);
-        savePath = PlayerPrefs.GetString("savePath") + PlayerPrefs.GetString("profile") + "/";
+        savePath = PlayerPrefs.GetString("savePath") + PlayerPrefs.GetString("profile");
         if (!Directory.Exists(savePath))
         {
             Directory.CreateDirectory(savePath);
             string newProfileString = JsonUtility.ToJson(newProfile);
-            System.IO.File.WriteAllText(savePath + "profile.json", newProfileString);
-        }else
+            System.IO.File.WriteAllText(savePath + "/profile.json", newProfileString);
+            PlayerPrefs.SetString("profilePath", savePath + "/profile.json");
+            //string profilePath = PlayerPrefs.GetString("savePath") + PlayerPrefs.GetString("profile") + "/profile.json";
+           // PlayerPrefs.SetString("profilePath", savePath);
+        }
+        else
         {
             //idk wave a finger or something
         }

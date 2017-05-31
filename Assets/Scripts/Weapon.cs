@@ -12,8 +12,8 @@ public class Weapon : MonoBehaviour {
     //reticle
     public Reticle reticle;
     public List<Reticle> reticles;
-    protected enum weaponType{other, sword, spear };
-    weaponType myType = weaponType.other;
+    public enum WeaponType{other, sword, spear };
+    WeaponType myType = WeaponType.other;
     //range this is a problem for later
     //public Sprite range_sprite;
 
@@ -36,7 +36,7 @@ public class Weapon : MonoBehaviour {
 		reticleObject = Resources.Load ("Prefabs/Reticle") as GameObject;
         savedReticleX = -1;
         savedReticleY = -1;
-        GameObject.Find("Armory").GetComponent<Armory>().weapons.Add(this);
+        GameObject.Find("Armory").GetComponent<Armory>().AddWeapon(this);
         MakeVisible();
         Reset();
     }
@@ -88,7 +88,10 @@ public class Weapon : MonoBehaviour {
     {
         GetComponent<SpriteRenderer>().color = myColor;
     }
-
+    public WeaponType GetMyType()
+    {
+        return myType;
+    }
     private void AutoAim()
     {
         int closestEnemyX = 1000;

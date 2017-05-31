@@ -68,7 +68,6 @@ public class Unit : MonoBehaviour {
 		if (x < gameController.GetLevelWidth () && y < gameController.GetLevelHeight () && x >= 0 && y >= 0 && gameController.occupationGrid[y*gameController.GetLevelWidth() + x] == 0) {
 			primaryWeapon.Reset ();
 			gameController.unitGrid [cordY * gameController.GetLevelWidth () + cordX] = null;
-			//transform.position = new Vector3 ((x - gameController.GetLevelWidth () / 2)-.5f, (y - gameController.GetLevelHeight () / 2)-.5f, transform.position.z);
 			gameController.SetOccupation (cordX, cordY, 0);
 			cordX = x; 
 			cordY = y;

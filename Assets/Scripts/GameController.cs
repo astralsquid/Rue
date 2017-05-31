@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 /*	Creates / Stores World
  *  Handles Enemy Movement
@@ -15,6 +16,7 @@ public class GameController : MonoBehaviour {
 	public float runTurnDelay;
     public Color tile_color_bound_1;
     public Color tile_color_bound_2;
+    public Armory armory;
 
     //reflex
     public float reflex = 3.0f;
@@ -37,7 +39,6 @@ public class GameController : MonoBehaviour {
 	//Objects
 	public GameObject tile;
 	public GameObject exit;
-
 	public GameObject enemyController;
 
 	//Meta Info
@@ -49,6 +50,8 @@ public class GameController : MonoBehaviour {
 	//Level Info
 	public int levelHeight;
 	public int levelWidth;
+    public enum LevelMode {Arena, Quarters, Intro};
+    LevelMode levelMode;
 
     //win info
     bool level_won = false;
@@ -69,6 +72,7 @@ public class GameController : MonoBehaviour {
         reflex_bar_max_height = reflex_bar.GetComponent<RectTransform>().sizeDelta.y;
         reflex_bar_max_width = reflex_bar.GetComponent<RectTransform>().sizeDelta.x;
         //reflex_bar.transform.position = new Vector3(0, Screen.height, -9);
+
     }
 
 	void Start () {
@@ -91,9 +95,18 @@ public class GameController : MonoBehaviour {
         playerUnit.SetWish(playerProfile.myUnit.wish);
         Debug.Log(profileString);
     }
+    void Save()
+    {
+        SavePlayerProfile();
+    }
     void SavePlayerProfile()
     {
-        
+        string saveFile = (PlayerPrefs.GetString("savePath") + PlayerPrefs.GetString("profile") + "/profile.json");
+        PlayerProfile playerProfile = new PlayerProfile(playerUnit, armory.GetWeaponCereals());
+        string newProfileString = JsonUtility.ToJson(playerProfile);
+        Debug.Log(saveFile);
+        Debug.Log(newProfileString);
+        System.IO.File.WriteAllText(saveFile, newProfileString);
     }
 
 	// Update is called once per frame
@@ -192,6 +205,8 @@ public class GameController : MonoBehaviour {
 
     IEnumerator EndLevel()
     {
+        Save();
+        SceneManager.LoadScene("Quarters");
         yield return new WaitForSeconds(1);
         StartCoroutine(elevator.Raise(true));
     }
