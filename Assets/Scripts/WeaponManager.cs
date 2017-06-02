@@ -18,6 +18,16 @@ public class WeaponManager : MonoBehaviour {
         GameObject weapon = weapon_prefabs[Random.Range(0, weapon_prefabs.Count)];
         return weapon;
     }
+    public GameObject GetSpear()
+    {
+        GameObject weapon = weapon_prefabs[1];
+        return weapon;
+    }
+    public GameObject GetSword()
+    {
+        GameObject weapon = weapon_prefabs[0];
+        return weapon;
+    }
 
 
 }

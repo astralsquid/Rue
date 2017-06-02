@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Quarters.unity
+- path: Assets/Arena.unity
   isLoaded: 1
   isActive: 1

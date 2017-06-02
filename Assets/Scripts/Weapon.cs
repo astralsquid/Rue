@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Weapon : MonoBehaviour {
     public Color myColor;
-    int damage = 1;
+    public int damage = 1;
     public GameObject reticleObject;
 
     public float attack_time = .1f;
@@ -12,8 +12,8 @@ public class Weapon : MonoBehaviour {
     //reticle
     public Reticle reticle;
     public List<Reticle> reticles;
-    public enum WeaponType{other, sword, spear };
-    WeaponType myType = WeaponType.other;
+    public enum WeaponType{sword, spear, other};
+    protected WeaponType myType = WeaponType.other;
     //range this is a problem for later
     //public Sprite range_sprite;
 
@@ -90,6 +90,8 @@ public class Weapon : MonoBehaviour {
     }
     public WeaponType GetMyType()
     {
+        Debug.Log("getting type...");
+        Debug.Log(myType);
         return myType;
     }
     private void AutoAim()
@@ -292,4 +294,5 @@ public class Weapon : MonoBehaviour {
 	public bool MoveReticleWest(){
 		return MoveReticle(reticle.cordX - 1, reticle.cordY);
 	}
+    
 }

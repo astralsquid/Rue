@@ -75,18 +75,18 @@ public class PlayerInputController : MonoBehaviour {
             {
                 if (ScanForInput())
                 {
-                    if (first_move)
+                    if (first_move && !gameController.intro)
                     {
                         StartCoroutine(gameController.elevator.Raise(false));
                         first_move = false;
                     }
-                    gameController.ResetReflex();
+                    if (!gameController.intro) { gameController.ResetReflex(); }
                     StartCoroutine(gameController.RunTurn());
                 }
             }
-            else if (ScanForAim() && ! first_move)
+            else if (ScanForAim() && ! first_move && !gameController.intro)
             { //we are aiming
-                gameController.ResetReflex();
+                if (!gameController.intro) { gameController.ResetReflex(); }
                 StartCoroutine(gameController.RunTurn());
                 playerUnit.aiming = false;
             }

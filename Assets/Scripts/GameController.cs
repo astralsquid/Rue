@@ -17,6 +17,7 @@ public class GameController : MonoBehaviour {
     public Color tile_color_bound_1;
     public Color tile_color_bound_2;
     public Armory armory;
+    public bool intro;
 
     //reflex
     public float reflex = 3.0f;
@@ -40,6 +41,7 @@ public class GameController : MonoBehaviour {
 	public GameObject tile;
 	public GameObject exit;
 	public GameObject enemyController;
+    public WeaponManager weaponManager;
 
 	//Meta Info
 	public int currentLevel;
@@ -81,19 +83,62 @@ public class GameController : MonoBehaviour {
 		unitGrid = new Unit[0];
 		occupationGrid = new int[0];
 		tileGrid = new GameObject[0];
-		ChangeLevel (LevelType.Fields, levelWidth, levelHeight);
-        LoadPlayerProfile();
-        StartCoroutine(elevator.Lower(true));
+        //ChangeLevel(LevelType.Fields, levelWidth, levelHeight);
+        intro = true;
+        StartIntro();
+        //StartCoroutine(elevator.Lower(true));
 	}
+
+    void StartIntro()
+    {
+        //just dump reflex somewhere
+        StopReflex();
+        //create new grid
+        Destroy(GameObject.Find("Elevator"));
+        targetGrid = new int[levelWidth * levelHeight];
+        unitGrid = new Unit[levelWidth * levelHeight];
+        tileGrid = new GameObject[levelWidth * levelHeight];
+        occupationGrid = new int[levelWidth * levelHeight];
+
+        enemies = 0;
+        levelHeight = 31;
+        levelWidth = 1;
+
+        //spawn tiles
+        for (int y = 0; y < levelHeight; y++)
+        {
+            for (int x = 0; x < levelWidth; x++)
+            {
+                GameObject spawnedTile = Instantiate(tile, new Vector3(x - (levelWidth) / 2f, y - (levelHeight) / 2f, 0), Quaternion.identity) as GameObject;
+                spawnedTile.GetComponent<SpriteRenderer>().color = Color.Lerp(tile_color_bound_1, tile_color_bound_2, UnityEngine.Random.Range(0.0f, 1.0f));
+                Debug.Log(y * levelWidth + x);
+                tileGrid[y * levelWidth + x] = spawnedTile;
+            }
+        }
+        playerUnit.Teleport(0, 0, true);
+        playerUnit.GrantRandomWeapon();
+    }
 
     void LoadPlayerProfile()
     {
-        string profileString = System.IO.File.ReadAllText(PlayerPrefs.GetString("savePath") + PlayerPrefs.GetString("profile") + "/profile.json");
-        PlayerProfile playerProfile = JsonUtility.FromJson<PlayerProfile>(profileString);
+
+        GameSaver gs = new GameSaver();
+        PlayerProfile playerProfile = gs.LoadProfile();
         playerUnit.SetColor(playerProfile.myUnit.myColor);
         playerUnit.SetName(playerProfile.myUnit.name);
         playerUnit.SetWish(playerProfile.myUnit.wish);
-        Debug.Log(profileString);
+        playerUnit.LoadWeapon(playerProfile.myUnit.weapon);
+    }
+    //dishes out weapons to everyone in the arena
+    void DishOutWeapons()
+    {
+        for(int i = 0; i<enemyControllers.Count; i++)
+        {
+            GameObject primary_weapon_object = GameObject.Find("WeaponManager").GetComponent<WeaponManager>().GetRandomWeapon();
+            enemyControllers[i].unit.primaryWeapon = GameObject.Instantiate(primary_weapon_object, new Vector3(enemyControllers[i].unit.transform.position.x, enemyControllers[i].unit.transform.position.y, -5), Quaternion.identity).GetComponent<Weapon>();
+            enemyControllers[i].unit.primaryWeapon.owner = enemyControllers[i].unit;
+            enemyControllers[i].unit.primaryWeapon.transform.parent = enemyControllers[i].unit.transform;
+        }
     }
     void Save()
     {
@@ -101,12 +146,10 @@ public class GameController : MonoBehaviour {
     }
     void SavePlayerProfile()
     {
-        string saveFile = (PlayerPrefs.GetString("savePath") + PlayerPrefs.GetString("profile") + "/profile.json");
         PlayerProfile playerProfile = new PlayerProfile(playerUnit, armory.GetWeaponCereals());
-        string newProfileString = JsonUtility.ToJson(playerProfile);
-        Debug.Log(saveFile);
-        Debug.Log(newProfileString);
-        System.IO.File.WriteAllText(saveFile, newProfileString);
+        Debug.Log("weapon type" + playerUnit.primaryWeapon.GetType());
+        GameSaver gs = new GameSaver();
+        gs.SaveProfile(playerProfile);
     }
 
 	// Update is called once per frame
@@ -130,13 +173,15 @@ public class GameController : MonoBehaviour {
         occupationGrid = new int[width * height];
 
         //spawn player
+        LoadPlayerProfile();
+
         playerUnit.GetComponent<Unit>().Move(width/2,height/2, false);
 
 		//spawn enemies
 		List<Vector2> coords = new List<Vector2> ();
 		for (int w = 0; w < width; w++) {
 			for (int h = 0; h < height; h++) {
-				if (w != width / 2 || h != height / 2) {
+				if (w != width / 2 || h != height / 2 && w !=( width / 2) + 1 && w != (width / 2) - 1 && h != (height / 2) + 1 && h != (height / 2) + - 1) {
 					coords.Add (new Vector2 (w, h));
 				}
 			}
@@ -155,8 +200,9 @@ public class GameController : MonoBehaviour {
 		for (int i = 0; i < enemies; i++) {
 			GameObject e = GameObject.Instantiate (enemyController, new Vector3 (0, 0, 0), Quaternion.identity);
 			enemyControllers.Add (e.GetComponent<EnemyController>());
-			enemyControllers[enemyControllers.Count-1].unit.Move ((int)coords [i].x, (int)coords [i].y, false);
-		}
+            enemyControllers[enemyControllers.Count - 1].unit.GrantRandomWeapon();
+            enemyControllers[enemyControllers.Count - 1].unit.Move((int)coords[i].x, (int)coords[i].y, false);
+        }
 
         //spawn tiles
         for (int y = 0; y < height; y++)
@@ -183,6 +229,12 @@ public class GameController : MonoBehaviour {
             enemyControllers[i].TakeTurn();
             playerInputController.EnableInput();
 		}
+
+        if (!playerUnit.alive)
+        {
+            SceneManager.LoadScene("DeathScene");
+        }
+
         for (int i = 0; i < enemyControllers.Count; i++)
         {
             if (enemyControllers[i].unit.alive)
@@ -191,13 +243,13 @@ public class GameController : MonoBehaviour {
             }
         }
 
-        if (level_won && !elevator_called)
+        if (level_won && !elevator_called && !intro)
         {
             elevator_called = true;
             StartCoroutine(elevator.Lower(false));
         }
 
-        if(playerUnit.cordX == levelWidth/2 && playerUnit.cordY == levelHeight/2 && level_won && elevator.elevator_lowered)
+        if(playerUnit.cordX == levelWidth/2 && playerUnit.cordY == levelHeight/2 && level_won && elevator.elevator_lowered && !intro)
         {
             StartCoroutine(EndLevel());
         }
@@ -277,6 +329,7 @@ public class GameController : MonoBehaviour {
         reflex_stopped = true;
         reflex_bar.GetComponent<Image>().color = new Color(0, 0, 0, 0);
     }
+    
 
     public void ResetReflex()
     {
@@ -294,6 +347,6 @@ public class GameController : MonoBehaviour {
     }
     public GameObject GetMiddleTile()
     {
-        return tileGrid[levelWidth/2 * levelWidth + levelHeight/2];
+        return tileGrid[levelWidth/2 * levelHeight + levelHeight/2];
     }
 }

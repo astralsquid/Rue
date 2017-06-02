@@ -84,6 +84,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\DeathManager.cs" />
     <Compile Include="Assets\QuartersManager.cs" />
     <Compile Include="Assets\Scripts\Armory.cs" />
     <Compile Include="Assets\Scripts\Bolo.cs" />
@@ -92,6 +93,7 @@
     <Compile Include="Assets\Scripts\Elevator.cs" />
     <Compile Include="Assets\Scripts\EnemyController.cs" />
     <Compile Include="Assets\Scripts\GameController.cs" />
+    <Compile Include="Assets\Scripts\GameSaver.cs" />
     <Compile Include="Assets\Scripts\LineDrawer.cs" />
     <Compile Include="Assets\Scripts\MainCamera.cs" />
     <Compile Include="Assets\Scripts\NameWizard.cs" />
@@ -107,6 +109,8 @@
     <Compile Include="Assets\Scripts\WeaponCereal.cs" />
     <Compile Include="Assets\Scripts\WeaponManager.cs" />
     <Compile Include="Assets\StartMenuManager.cs" />
+    <Compile Include="Assets\StoryBitController.cs" />
+    <Compile Include="Assets\StoryPlayerController.cs" />
     <Compile Include="Assets\WeaponButtonList.cs" />
     <Compile Include="Assets\WeaponSelectButton.cs" />
   </ItemGroup>

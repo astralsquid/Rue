@@ -29,11 +29,6 @@ public class Unit : MonoBehaviour {
 		aiming = false;
         weaponObject = Resources.Load("Prefabs/Weapon") as GameObject;
 		age = Random.Range (15, 60);
-
-        GameObject primary_weapon_object = GameObject.Find("WeaponManager").GetComponent<WeaponManager>().GetRandomWeapon();
-		primaryWeapon = GameObject.Instantiate (primary_weapon_object, new Vector3(transform.position.x, transform.position.y, -5), Quaternion.identity).GetComponent<Weapon> ();
-		primaryWeapon.owner = this;
-        primaryWeapon.transform.parent = transform;
         my_color = new Color (Random.Range (.2f, 1f), Random.Range (.2f, 1f), Random.Range (.2f, 1f));
 		GetComponent<SpriteRenderer> ().color = my_color;
     }
@@ -42,6 +37,16 @@ public class Unit : MonoBehaviour {
         NameWizard nw = GameObject.Find("NameWizard").GetComponent<NameWizard>();
         name = nw.RandomName() + " " + nw.RandomLastName();
 		gameController.unitList.Add (this);
+    }
+
+    public void GrantRandomWeapon()
+    {
+        GameObject primary_weapon_object = GameObject.Find("WeaponManager").GetComponent<WeaponManager>().GetRandomWeapon();
+        primaryWeapon = GameObject.Instantiate (primary_weapon_object, new Vector3(transform.position.x, transform.position.y, -5), Quaternion.identity).GetComponent<Weapon> ();
+
+
+        primaryWeapon.owner = this;
+        primaryWeapon.transform.parent = transform;
     }
 
     // Update is called once per frame
@@ -86,7 +91,31 @@ public class Unit : MonoBehaviour {
 		return false;
 	}
 
-	public void TakeDamage(int d){
+    public bool Teleport(int x, int y, bool moveCamera)
+    {
+        if (x < gameController.GetLevelWidth() && y < gameController.GetLevelHeight() && x >= 0 && y >= 0 && gameController.occupationGrid[y * gameController.GetLevelWidth() + x] == 0)
+        {
+            gameController.unitGrid[cordY * gameController.GetLevelWidth() + cordX] = null;
+            gameController.SetOccupation(cordX, cordY, 0);
+            cordX = x;
+            cordY = y;
+            gameController.SetOccupation(cordX, cordY, 1);
+            gameController.unitGrid[cordY * gameController.GetLevelWidth() + cordX] = this;
+
+            Vector3 movePosition = new Vector3((x - gameController.GetLevelWidth() / 2) - .5f, (y - gameController.GetLevelHeight() / 2) - .5f, transform.position.z);
+            transform.position = movePosition;
+            if (moveCamera)
+            {
+                movePosition = new Vector3((x - gameController.GetLevelWidth() / 2) - .5f, (y - gameController.GetLevelHeight() / 2) - .5f, GameObject.Find("Main Camera").transform.position.z);
+                StartCoroutine(MoveToPosition(GameObject.Find("Main Camera").transform, movePosition, .2f));
+            }
+            return true;
+        }
+        return false;
+    }
+
+
+    public void TakeDamage(int d){
 		hp -= d;
 		if (hp < 1) {
 			Die ();
@@ -156,5 +185,27 @@ public class Unit : MonoBehaviour {
             yield return null;
         }
         moving = false;
+    }
+    public void LoadWeapon(WeaponCereal wc)
+    {
+        GameObject primary_weapon_object;
+        switch (wc.myType)
+        {
+            case Weapon.WeaponType.sword:
+                primary_weapon_object = GameObject.Find("WeaponManager").GetComponent<WeaponManager>().GetSword();
+                Destroy(primaryWeapon);
+                primaryWeapon = GameObject.Instantiate(primary_weapon_object, new Vector3(transform.position.x, transform.position.y, -5), Quaternion.identity).GetComponent<Sword>();
+                break;
+            case Weapon.WeaponType.spear:
+                primary_weapon_object = GameObject.Find("WeaponManager").GetComponent<WeaponManager>().GetSpear();
+                Destroy(primaryWeapon);
+                primaryWeapon = GameObject.Instantiate(primary_weapon_object, new Vector3(transform.position.x, transform.position.y, -5), Quaternion.identity).GetComponent<Spear>();
+                break;
+            default:
+                Debug.Log("invalid weapon type");
+                break;
+        }
+        primaryWeapon.owner = this;
+        primaryWeapon.transform.parent = transform;
     }
 }

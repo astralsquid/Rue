@@ -83,8 +83,8 @@ public class StartMenuManager : MonoBehaviour {
     void CreateProfile()
     {
         PlayerProfile newProfile = new PlayerProfile();
-        newProfile.myUnit.name = wishText.text;
-        newProfile.myUnit.wish = nameText.text;
+        newProfile.myUnit.name = nameText.text;
+        newProfile.myUnit.wish = wishText.text;
         newProfile.myUnit.myColor = myColor;
         PlayerPrefs.SetString("profile", nameText.text);
         savePath = PlayerPrefs.GetString("savePath") + PlayerPrefs.GetString("profile");
