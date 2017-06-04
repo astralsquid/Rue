@@ -111,7 +111,6 @@ public class GameController : MonoBehaviour {
             {
                 GameObject spawnedTile = Instantiate(tile, new Vector3(x - (levelWidth) / 2f, y - (levelHeight) / 2f, 0), Quaternion.identity) as GameObject;
                 spawnedTile.GetComponent<SpriteRenderer>().color = Color.Lerp(tile_color_bound_1, tile_color_bound_2, UnityEngine.Random.Range(0.0f, 1.0f));
-                Debug.Log(y * levelWidth + x);
                 tileGrid[y * levelWidth + x] = spawnedTile;
             }
         }

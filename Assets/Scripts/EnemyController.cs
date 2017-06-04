@@ -146,9 +146,9 @@ public class EnemyController : MonoBehaviour {
 	}
 	public void AimAtTarget(){
 		if (Mathf.Abs (myTarget.cordX - unit.cordX) == unit.primaryWeapon.range && Mathf.Abs (myTarget.cordY - unit.cordY) <= unit.primaryWeapon.range) {
-			unit.primaryWeapon.MoveReticle (myTarget.cordX, myTarget.cordY);
+			unit.primaryWeapon.MoveReticle (myTarget.cordX, myTarget.cordY, false);
 		}else if (Mathf.Abs (myTarget.cordY - unit.cordY) == unit.primaryWeapon.range && Mathf.Abs (myTarget.cordX - unit.cordX) <= unit.primaryWeapon.range) {
-			unit.primaryWeapon.MoveReticle (myTarget.cordX, myTarget.cordY);
+			unit.primaryWeapon.MoveReticle (myTarget.cordX, myTarget.cordY, false);
 		}
 	}
 

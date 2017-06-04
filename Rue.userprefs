@@ -1,11 +1,14 @@
-﻿<Properties StartupItem="Rue.csproj">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\GameController.cs">
+﻿<Properties StartupItem="Assembly-CSharp.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Weapon.cs">
     <Files>
-      <File FileName="Assets\Scripts\Weapon.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Weapon.cs" Line="29" Column="30" />
       <File FileName="Assets\Scripts\GameController.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\PlayerInputController.cs" Line="85" Column="5" />
+      <File FileName="Assets\Scripts\PlayerInputController.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\WeaponCereal.cs" Line="1" Column="1" />
+      <File FileName="Assets\SkyRipper.cs" Line="23" Column="3" />
+      <File FileName="Assets\Scripts\WeaponManager.cs" Line="31" Column="6" />
+      <File FileName="Assets\Scripts\EnemyController.cs" Line="163" Column="27" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

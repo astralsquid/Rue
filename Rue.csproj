@@ -108,6 +108,7 @@
     <Compile Include="Assets\Scripts\Weapon.cs" />
     <Compile Include="Assets\Scripts\WeaponCereal.cs" />
     <Compile Include="Assets\Scripts\WeaponManager.cs" />
+    <Compile Include="Assets\SkyRipper.cs" />
     <Compile Include="Assets\StartMenuManager.cs" />
     <Compile Include="Assets\StoryBitController.cs" />
     <Compile Include="Assets\StoryPlayerController.cs" />

@@ -15,7 +15,8 @@ public class WeaponManager : MonoBehaviour {
 
     public GameObject GetRandomWeapon()
     {
-        GameObject weapon = weapon_prefabs[Random.Range(0, weapon_prefabs.Count)];
+        //GameObject weapon = weapon_prefabs[Random.Range(0, weapon_prefabs.Count)];
+        GameObject weapon = weapon_prefabs[2];
         return weapon;
     }
     public GameObject GetSpear()
@@ -28,6 +29,4 @@ public class WeaponManager : MonoBehaviour {
         GameObject weapon = weapon_prefabs[0];
         return weapon;
     }
-
-
 }

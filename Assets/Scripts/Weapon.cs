@@ -8,11 +8,12 @@ public class Weapon : MonoBehaviour {
     public GameObject reticleObject;
 
     public float attack_time = .1f;
+	public bool standardRotation;
 
     //reticle
     public Reticle reticle;
     public List<Reticle> reticles;
-    public enum WeaponType{sword, spear, other};
+    public enum WeaponType{sword, spear, skyripper, other};
     protected WeaponType myType = WeaponType.other;
     //range this is a problem for later
     //public Sprite range_sprite;
@@ -27,10 +28,11 @@ public class Weapon : MonoBehaviour {
 	public int strikeStep = 2;
     public int savedReticleX;
     public int savedReticleY;
-    bool weaponRotLocked;
+    protected bool weaponRotLocked;
 	public float animationSpeed;
     // Use this for initialization
     protected void Start () {
+		standardRotation = true;
         weaponRotLocked = false;
         step = 0;
 		reticleObject = Resources.Load ("Prefabs/Reticle") as GameObject;
@@ -39,9 +41,9 @@ public class Weapon : MonoBehaviour {
         GameObject.Find("Armory").GetComponent<Armory>().AddWeapon(this);
         MakeVisible();
         Reset();
-    }
+	}
 
-    public IEnumerator Stab(float timePerSquare)
+    virtual public IEnumerator Stab(float timePerSquare)
     {
         weaponRotLocked = true;
 		float timeToMove = timePerSquare * range;
@@ -68,17 +70,16 @@ public class Weapon : MonoBehaviour {
         }
     }
 
-    protected void Update()
+    protected virtual void Update()
     {
-        if (reticle != null && !weaponRotLocked)
-        {
-            Vector3 vectorToTarget = reticle.transform.position - transform.position;
-            float angle = (Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg) - 90;
-            Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
-            transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 8f);
-        }
+		if (reticle != null && !weaponRotLocked &&standardRotation)
+		{
+			Vector3 vectorToTarget = reticle.transform.position - transform.position;
+			float angle = (Mathf.Atan2(vectorToTarget.y, vectorToTarget.x) * Mathf.Rad2Deg) - 90;
+			Quaternion q = Quaternion.AngleAxis(angle, Vector3.forward);
+			transform.rotation = Quaternion.Slerp(transform.rotation, q, Time.deltaTime * 8f);
+		}
     }
-
 
     public void MakeInvisible()
     {
@@ -94,7 +95,7 @@ public class Weapon : MonoBehaviour {
         Debug.Log(myType);
         return myType;
     }
-    private void AutoAim()
+    protected void AutoAim()
     {
         int closestEnemyX = 1000;
         int closestEnemyY = 1000;
@@ -133,7 +134,7 @@ public class Weapon : MonoBehaviour {
         }
     }
 
-    public void WhipItOut()
+    virtual public void WhipItOut()
     {
         MakeVisible();
         weaponRotLocked = false;
@@ -170,10 +171,13 @@ public class Weapon : MonoBehaviour {
 
 	public bool Attack(){
         MakeVisible();
+
 		step += 1;
 		if (step == aimStep) {
             //aim
             WhipItOut();
+			Debug.Log (transform.rotation.z);
+
             return false;
 		} else if (step == strikeStep) {
             Strike();
@@ -198,7 +202,7 @@ public class Weapon : MonoBehaviour {
 		}
 	}
 
-	public void Reset(){
+	virtual public void Reset(){
 		step = 0;
 		if (reticle != null) {
 			owner.gameController.SubTarget (reticle.cordX, reticle.cordY);
@@ -209,7 +213,16 @@ public class Weapon : MonoBehaviour {
         MakeInvisible();
 	}
 
-	public bool MoveReticle(int x, int y){
+	public bool MoveReticle(int x, int y, bool forced){
+		if (forced) {
+			reticle.cordX = x;
+			reticle.cordY = y;
+			GameObject t = owner.gameController.tileGrid [reticle.cordY * owner.gameController.GetLevelWidth () + reticle.cordX];
+			reticle.transform.position = new Vector3 (t.transform.position.x, t.transform.position.y, -3);
+			return true;
+		}
+
+
         bool canMove = false;
 		if (x <= owner.cordX + range && x >= owner.cordX - range && (y == owner.cordY + range || y == owner.cordY - range)) {
 			canMove = true;
@@ -255,7 +268,7 @@ public class Weapon : MonoBehaviour {
 	}
 	public bool MoveReticleNorthInitial(){
 		if(reticle.cordY < owner.gameController.GetLevelHeight()){
-			return MoveReticle (reticle.cordX, reticle.cordY + range);
+			return MoveReticle (reticle.cordX, reticle.cordY + range, false);
 		}
 		return MoveReticleSouthInitial();
 		
@@ -263,36 +276,49 @@ public class Weapon : MonoBehaviour {
 	public bool MoveReticleSouthInitial(){
 		if (reticle.cordY > 0) {
 		if (reticle.cordY - range >= 0) {
-			return MoveReticle (reticle.cordX, reticle.cordY - range);
+				return MoveReticle (reticle.cordX, reticle.cordY - range, false);
 		}
 		}
 		return MoveReticleNorthInitial ();
 	}
 	public bool MoveReticleEastInitial(){
 		if (reticle.cordX  < owner.gameController.GetLevelWidth ()) {
-			return MoveReticle (reticle.cordX + range, reticle.cordY);
+			return MoveReticle (reticle.cordX + range, reticle.cordY, false);
 		}
 		return MoveReticleWestInitial ();
 	}
 	public bool MoveReticleWestInitial(){
 		if (reticle.cordX  > 0) {
 		if (reticle.cordX - range >= 0) {
-			return MoveReticle (reticle.cordX - range, reticle.cordY);
+				return MoveReticle (reticle.cordX - range, reticle.cordY, false);
 		}
 		}
 		return MoveReticleEastInitial ();
 	}
 	public bool MoveReticleNorth(){
-		return MoveReticle (reticle.cordX, reticle.cordY + 1);
+		return MoveReticle (reticle.cordX, reticle.cordY + 1, false);
 	}
 	public bool MoveReticleSouth(){
-		return MoveReticle(reticle.cordX, reticle.cordY - 1);
+		return MoveReticle(reticle.cordX, reticle.cordY - 1, false);
 	}
 	public bool MoveReticleEast(){
-		return MoveReticle(reticle.cordX + 1, reticle.cordY);
+		return MoveReticle(reticle.cordX + 1, reticle.cordY, false);
 	}
 	public bool MoveReticleWest(){
-		return MoveReticle(reticle.cordX - 1, reticle.cordY);
+		return MoveReticle(reticle.cordX - 1, reticle.cordY, false);
+	}
+
+	public bool ForceMoveReticleNorth(){
+		return MoveReticle (reticle.cordX, reticle.cordY + 1, true);
+	}
+	public bool ForceMoveReticleSouth(){
+		return MoveReticle(reticle.cordX, reticle.cordY - 1, true);
+	}
+	public bool ForceMoveReticleEast(){
+		return MoveReticle(reticle.cordX + 1, reticle.cordY, true);
+	}
+	public bool ForceMoveReticleWest(){
+		return MoveReticle(reticle.cordX - 1, reticle.cordY, true);
 	}
     
 }
