@@ -11,22 +11,19 @@ using UnityEngine.SceneManagement;
  * */
 
 public class GameController : MonoBehaviour {
+	//optional components
+	public ReflexManager reflexManager;
+
+
 	//settings
 	public float enemyMovementSpacing;
 	public float runTurnDelay;
     public Color tile_color_bound_1;
     public Color tile_color_bound_2;
     public Armory armory;
-    public bool intro;
-
-    //reflex
-    public float reflex = 3.0f;
-    float current_reflex = 3.0f;
-    public GameObject reflex_bar;
-    float reflex_bar_max_width;
-    float reflex_bar_max_height;
-    bool reflex_stopped;
-    public Color reflex_color;
+	public bool elevator_online;
+	public int spawn_x;
+	public int spawn_y;
 
     //elevator
     public Elevator elevator;
@@ -56,7 +53,7 @@ public class GameController : MonoBehaviour {
     LevelMode levelMode;
 
     //win info
-    bool level_won = false;
+    public bool level_won = false;
     bool elevator_called;
 
 	//Storage
@@ -69,12 +66,8 @@ public class GameController : MonoBehaviour {
 	public List<Unit> unitList;
 
     void Awake(){
-        reflex_stopped = true;
 		unitList = new List<Unit> ();
-        reflex_bar_max_height = reflex_bar.GetComponent<RectTransform>().sizeDelta.y;
-        reflex_bar_max_width = reflex_bar.GetComponent<RectTransform>().sizeDelta.x;
-        //reflex_bar.transform.position = new Vector3(0, Screen.height, -9);
-
+		elevator_called = false;
     }
 
 	void Start () {
@@ -83,40 +76,13 @@ public class GameController : MonoBehaviour {
 		unitGrid = new Unit[0];
 		occupationGrid = new int[0];
 		tileGrid = new GameObject[0];
-        //ChangeLevel(LevelType.Fields, levelWidth, levelHeight);
-        intro = true;
-        StartIntro();
-        //StartCoroutine(elevator.Lower(true));
+
+		ChangeLevel(LevelType.Fields, levelWidth, levelHeight);
+
+		//optional features
+		LowerElevator(true);
+		StopReflex ();
 	}
-
-    void StartIntro()
-    {
-        //just dump reflex somewhere
-        StopReflex();
-        //create new grid
-        Destroy(GameObject.Find("Elevator"));
-        targetGrid = new int[levelWidth * levelHeight];
-        unitGrid = new Unit[levelWidth * levelHeight];
-        tileGrid = new GameObject[levelWidth * levelHeight];
-        occupationGrid = new int[levelWidth * levelHeight];
-
-        enemies = 0;
-        levelHeight = 31;
-        levelWidth = 1;
-
-        //spawn tiles
-        for (int y = 0; y < levelHeight; y++)
-        {
-            for (int x = 0; x < levelWidth; x++)
-            {
-                GameObject spawnedTile = Instantiate(tile, new Vector3(x - (levelWidth) / 2f, y - (levelHeight) / 2f, 0), Quaternion.identity) as GameObject;
-                spawnedTile.GetComponent<SpriteRenderer>().color = Color.Lerp(tile_color_bound_1, tile_color_bound_2, UnityEngine.Random.Range(0.0f, 1.0f));
-                tileGrid[y * levelWidth + x] = spawnedTile;
-            }
-        }
-        playerUnit.Teleport(0, 0, true);
-        playerUnit.GrantRandomWeapon();
-    }
 
     void LoadPlayerProfile()
     {
@@ -153,8 +119,9 @@ public class GameController : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-        TickReflex();
+	
 	}
+
 	public void ChangeLevel(LevelType type, int width, int height){
 		//set width and height
 		levelHeight = height;
@@ -174,7 +141,7 @@ public class GameController : MonoBehaviour {
         //spawn player
         LoadPlayerProfile();
 
-        playerUnit.GetComponent<Unit>().Move(width/2,height/2, false);
+		playerUnit.GetComponent<Unit>().Move(spawn_x,spawn_y, false);
 
 		//spawn enemies
 		List<Vector2> coords = new List<Vector2> ();
@@ -218,50 +185,96 @@ public class GameController : MonoBehaviour {
 
 
 	public IEnumerator RunTurn(){
-        level_won = true;
+		ClaimEnemyMoves ();
+
+		//take enemy moves
+		for (int i = 0; i < enemyControllers.Count; i++) {
+			playerInputController.DisableInput();
+			yield return new WaitForSeconds(enemyMovementSpacing);
+			enemyControllers[i].TakeTurn();
+			playerInputController.EnableInput();
+		}
+		CheckDeath ();
+
+		CheckLevelWon ();
+
+        if (level_won && !elevator_called)
+        {
+			Debug.Log ("wow");
+            elevator_called = true;
+			StopReflex ();
+			LowerElevator (false);
+        }
+			
+		EndLevelIfNecessary ();
+
+		//optional features
+		ResetReflex();
+    }
+
+	public void ResetReflex(){
+		if (reflexManager != null) {
+			reflexManager.ResetReflex ();
+		}
+	}
+
+	void EndLevelIfNecessary(){
+		if (elevator != null) {
+			if (playerUnit.cordX == levelWidth / 2 && playerUnit.cordY == levelHeight / 2 && level_won && elevator.elevator_lowered) {
+				StartCoroutine (EndLevel ());
+			}
+		}
+	}
+	void CheckLevelWon(){
+		level_won = true;
+		for (int i = 0; i < enemyControllers.Count; i++)
+		{
+			if (enemyControllers[i].unit.alive)
+			{
+				level_won = false;
+			}
+		}
+	}
+	void CheckDeath(){
+		if (!playerUnit.alive)
+		{
+			SceneManager.LoadScene("DeathScene");
+		}
+	}
+	public void ClaimEnemyMoves(){
 		for (int i = 0; i < enemyControllers.Count; i++) {
 			enemyControllers [i].ClaimMove();
 		}
-		for (int i = 0; i < enemyControllers.Count; i++) {
-            playerInputController.DisableInput();
-			yield return new WaitForSeconds(enemyMovementSpacing);
-            enemyControllers[i].TakeTurn();
-            playerInputController.EnableInput();
-		}
-
-        if (!playerUnit.alive)
-        {
-            SceneManager.LoadScene("DeathScene");
-        }
-
-        for (int i = 0; i < enemyControllers.Count; i++)
-        {
-            if (enemyControllers[i].unit.alive)
-            {
-                level_won = false;
-            }
-        }
-
-        if (level_won && !elevator_called && !intro)
-        {
-            elevator_called = true;
-            StartCoroutine(elevator.Lower(false));
-        }
-
-        if(playerUnit.cordX == levelWidth/2 && playerUnit.cordY == levelHeight/2 && level_won && elevator.elevator_lowered && !intro)
-        {
-            StartCoroutine(EndLevel());
-        }
-    }
+	}
 
     IEnumerator EndLevel()
     {
-        Save();
-        SceneManager.LoadScene("Quarters");
+		StopReflex (); //optional feature
+		if (elevator != null) {
+			StartCoroutine (elevator.Raise (true));
+		}
+		Save();
         yield return new WaitForSeconds(1);
-        StartCoroutine(elevator.Raise(true));
+		SceneManager.LoadScene("Quarters");
+
     }
 		
+	void StopReflex(){
+		if (reflexManager != null) {
+			reflexManager.StopReflex ();
+		}
+	}
+	public void RaiseElevator(bool b){
+		if (elevator_online) {
+			StartCoroutine (elevator.Raise (b));
+		}
+	}
+	public void LowerElevator(bool b){
+		if (elevator_online) {
+			StartCoroutine (elevator.Lower (b));
+		}
+	}
+
 	public void AddTarget(int x, int y){
 		targetGrid [y * levelWidth + x] += 1;
 	}
@@ -298,48 +311,6 @@ public class GameController : MonoBehaviour {
 	public int GetDistanceFromUnit(int i, int x, int y){
 		return Mathf.Max(Mathf.Abs (unitList [i].cordX - x) + Mathf.Abs (unitList [i].cordY - y));
 	}
-
-    void TickReflex()
-    {
-        if (!reflex_stopped)
-        {
-            current_reflex -= Time.deltaTime;
-            if (current_reflex > 0)
-            {
-                reflex_bar.GetComponent<RectTransform>().sizeDelta = new Vector2(reflex_bar_max_width * (current_reflex / reflex), reflex_bar_max_height);
-            }
-            else
-            {
-                current_reflex = reflex;
-                if (reflex > .05f)
-                {
-                    reflex = 0.9f * reflex;
-                }
-                reflex_bar.GetComponent<RectTransform>().sizeDelta = new Vector2(reflex_bar_max_width, reflex_bar_max_height);
-                StartCoroutine(RunTurn());
-                ResetReflex();
-            }
-        }
-    }
-
-    public void StopReflex()
-    {
-        current_reflex = reflex;
-        reflex_stopped = true;
-        reflex_bar.GetComponent<Image>().color = new Color(0, 0, 0, 0);
-    }
-    
-
-    public void ResetReflex()
-    {
-        
-        current_reflex = reflex;
-        if (!level_won)
-        {
-            reflex_stopped = false;
-            reflex_bar.GetComponent<Image>().color = reflex_color;
-        }
-    }
     public GameObject GetTile(int x, int y)
     {
         return tileGrid[y * levelWidth + x];

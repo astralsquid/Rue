@@ -4,8 +4,8 @@ using System.Collections;
 public class LineDrawer : MonoBehaviour
 {
 
-    public GameObject unit;
-    public GameObject panel;
+    public GameObject source;
+    public GameObject destination;
     LineRenderer lineRenderer;
 
     void Awake()
@@ -15,13 +15,18 @@ public class LineDrawer : MonoBehaviour
 
     private void Update()
     {
-        DrawLine();
+        //DrawLine();
     }
     private void DrawLine()
     {
-        Vector3 unitPosition = new Vector3(unit.transform.position.x, unit.transform.position.y, unit.transform.position.z);
-        Vector3 panelPosition = new Vector3(panel.transform.position.x - 1, panel.transform.position.y - 1, panel.transform.position.z);
+		Vector3 unitPosition = new Vector3(source.transform.position.x, source.transform.position.y, source.transform.position.z);
+		Vector3 panelPosition = new Vector3(destination.transform.position.x , destination.transform.position.y , destination.transform.position.z);
         lineRenderer.SetPosition(0, unitPosition);
         lineRenderer.SetPosition(1, panelPosition);
     }
+
+	public void DrawLine(GameObject source, GameObject destination){
+		lineRenderer.SetPosition (0, source.transform.position);
+		lineRenderer.SetPosition (1, destination.transform.position);
+	}
 }

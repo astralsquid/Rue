@@ -40,7 +40,7 @@ public class PlayerInputController : MonoBehaviour {
         first_move = true;
         lineRenderer = GetComponent<LineRenderer>();
         target = playerUnit;
-        ChangeTarget(playerUnit);
+        //ChangeTarget(playerUnit);
         inputEnabled = true;
     }
     void ChangeTarget()
@@ -75,18 +75,19 @@ public class PlayerInputController : MonoBehaviour {
             {
                 if (ScanForInput())
                 {
-                    if (first_move && !gameController.intro)
+                    if (first_move)
                     {
-                        StartCoroutine(gameController.elevator.Raise(false));
+						gameController.RaiseElevator (false);
                         first_move = false;
                     }
-                    if (!gameController.intro) { gameController.ResetReflex(); }
-                    StartCoroutine(gameController.RunTurn());
+					//optional feature
+					gameController.ResetReflex(); 
+					StartCoroutine(gameController.RunTurn());
                 }
             }
-            else if (ScanForAim() && ! first_move && !gameController.intro)
+            else if (ScanForAim() && ! first_move)
             { //we are aiming
-                if (!gameController.intro) { gameController.ResetReflex(); }
+                gameController.ResetReflex(); 
                 StartCoroutine(gameController.RunTurn());
                 playerUnit.aiming = false;
             }

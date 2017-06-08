@@ -34,8 +34,12 @@ public class Unit : MonoBehaviour {
     }
     void Start () {
 		alive = true;
-        NameWizard nw = GameObject.Find("NameWizard").GetComponent<NameWizard>();
-        name = nw.RandomName() + " " + nw.RandomLastName();
+        if(GameObject.Find("NameWizard")!=null){
+            NameWizard nw = GameObject.Find("NameWizard").GetComponent<NameWizard>();
+            name = nw.RandomName() + " " + nw.RandomLastName();
+        }else{ 
+            name = "nameless";
+        }
 		gameController.unitList.Add (this);
     }
 
@@ -189,20 +193,25 @@ public class Unit : MonoBehaviour {
     public void LoadWeapon(WeaponCereal wc)
     {
         GameObject primary_weapon_object;
+		Debug.Log (wc.myType);
         switch (wc.myType)
         {
             case Weapon.WeaponType.sword:
                 primary_weapon_object = GameObject.Find("WeaponManager").GetComponent<WeaponManager>().GetSword();
                 Destroy(primaryWeapon);
-                primaryWeapon = GameObject.Instantiate(primary_weapon_object, new Vector3(transform.position.x, transform.position.y, -5), Quaternion.identity).GetComponent<Sword>();
+			primaryWeapon = GameObject.Instantiate(primary_weapon_object, new Vector3(transform.position.x, transform.position.y, -5), Quaternion.identity).GetComponent<Sword>();
                 break;
             case Weapon.WeaponType.spear:
                 primary_weapon_object = GameObject.Find("WeaponManager").GetComponent<WeaponManager>().GetSpear();
                 Destroy(primaryWeapon);
-                primaryWeapon = GameObject.Instantiate(primary_weapon_object, new Vector3(transform.position.x, transform.position.y, -5), Quaternion.identity).GetComponent<Spear>();
+			primaryWeapon = GameObject.Instantiate(primary_weapon_object, new Vector3(transform.position.x, transform.position.y, -5), Quaternion.identity).GetComponent<Spear>();
                 break;
+			case Weapon.WeaponType.skyripper:
+				primary_weapon_object = GameObject.Find("WeaponManager").GetComponent<WeaponManager>().GetSkyRipper();
+				Destroy(primaryWeapon);
+			primaryWeapon = GameObject.Instantiate(primary_weapon_object, new Vector3(transform.position.x, transform.position.y, -5), Quaternion.identity).GetComponent<SkyRipper>();
+				break;
             default:
-                Debug.Log("invalid weapon type");
                 break;
         }
         primaryWeapon.owner = this;

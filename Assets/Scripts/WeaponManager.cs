@@ -6,7 +6,9 @@ public class WeaponManager : MonoBehaviour {
     public List<GameObject> weapon_prefabs;
 	// Use this for initialization
 	void Start () {
+
 	}
+
 	
 	// Update is called once per frame
 	void Update () {
@@ -16,7 +18,7 @@ public class WeaponManager : MonoBehaviour {
     public GameObject GetRandomWeapon()
     {
         //GameObject weapon = weapon_prefabs[Random.Range(0, weapon_prefabs.Count)];
-        GameObject weapon = weapon_prefabs[2];
+        GameObject weapon = weapon_prefabs[0];
         return weapon;
     }
     public GameObject GetSpear()
@@ -29,4 +31,9 @@ public class WeaponManager : MonoBehaviour {
         GameObject weapon = weapon_prefabs[0];
         return weapon;
     }
+	public GameObject GetSkyRipper()
+	{
+		GameObject weapon = weapon_prefabs[2];
+		return weapon;
+	}
 }

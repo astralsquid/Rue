@@ -51,10 +51,9 @@ public class Elevator : MonoBehaviour {
     public IEnumerator Lower(bool take_player)
     {
         float time_to_lower = time_to_move;
-        gameController.StopReflex();
         if (take_player)
         {
-            gameController.playerInputController.DisableInput();
+          gameController.playerInputController.DisableInput();
         }
         float start_y = 25;
         GameObject middle_tile = gameController.GetMiddleTile();
