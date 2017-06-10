@@ -24,10 +24,10 @@ public class Elevator : MonoBehaviour {
             {
                 gameController.playerInputController.DisableInput();
             }
-            float start_y = 25;
+            float start_z = -13;
             GameObject middle_tile = gameController.GetMiddleTile();
             Vector3 tp = middle_tile.transform.position;
-            transform.position = new Vector3(tp.x, start_y, -2);
+		transform.position = new Vector3(tp.x, tp.y, start_z);
 
             float t = 0.0f;
             while (t < time_to_raise)
@@ -35,7 +35,7 @@ public class Elevator : MonoBehaviour {
                 middle_tile = gameController.GetMiddleTile();
                 tp = middle_tile.transform.position;
                 t += Time.deltaTime;
-                transform.position = Vector3.Lerp(new Vector3(middle_tile.transform.position.x, middle_tile.transform.position.y, -2), new Vector3(tp.x, start_y, 0), t / time_to_raise);
+				transform.position = Vector3.Lerp(new Vector3(middle_tile.transform.position.x, middle_tile.transform.position.y,  middle_tile.transform.position.z), new Vector3(tp.x, tp.y, start_z), t / time_to_raise);
                 if (take_player)
                 {
                     gameController.playerInputController.playerUnit.transform.position = transform.position;
@@ -55,10 +55,10 @@ public class Elevator : MonoBehaviour {
         {
           gameController.playerInputController.DisableInput();
         }
-        float start_y = 25;
+        float start_z = -13;
         GameObject middle_tile = gameController.GetMiddleTile();
         Vector3 tp = middle_tile.transform.position;
-        transform.position = new Vector3(tp.x, start_y, -2);
+		transform.position = new Vector3(tp.x, tp.y, start_z);
 
 
         float t = 0.0f;
@@ -67,7 +67,7 @@ public class Elevator : MonoBehaviour {
             middle_tile = gameController.GetMiddleTile();
             tp = middle_tile.transform.position;
             t += Time.deltaTime;
-            transform.position = Vector3.Lerp(new Vector3(tp.x, start_y, 0), new Vector3(middle_tile.transform.position.x, middle_tile.transform.position.y, -2), t/time_to_lower);
+			transform.position = Vector3.Lerp(new Vector3(tp.x, tp.y, start_z), new Vector3(middle_tile.transform.position.x, middle_tile.transform.position.y, middle_tile.transform.position.z), t/time_to_lower);
             if (take_player)
             {
                 gameController.playerInputController.playerUnit.transform.position = transform.position;

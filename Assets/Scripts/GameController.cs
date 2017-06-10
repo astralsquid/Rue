@@ -14,7 +14,6 @@ public class GameController : MonoBehaviour {
 	//optional components
 	public ReflexManager reflexManager;
 
-
 	//settings
 	public float enemyMovementSpacing;
 	public float runTurnDelay;
@@ -39,6 +38,7 @@ public class GameController : MonoBehaviour {
 	public GameObject exit;
 	public GameObject enemyController;
     public WeaponManager weaponManager;
+	public ScreenFader screenFader;
 
 	//Meta Info
 	public int currentLevel;
@@ -66,22 +66,37 @@ public class GameController : MonoBehaviour {
 	public List<Unit> unitList;
 
     void Awake(){
-		unitList = new List<Unit> ();
-		elevator_called = false;
+
+
+
     }
 
 	void Start () {
+		unitList = new List<Unit> ();
+		elevator_called = false;
 		enemyControllers = new List<EnemyController> ();
 		targetGrid = new int[0];
 		unitGrid = new Unit[0];
 		occupationGrid = new int[0];
 		tileGrid = new GameObject[0];
-
 		ChangeLevel(LevelType.Fields, levelWidth, levelHeight);
 
 		//optional features
 		LowerElevator(true);
 		StopReflex ();
+		FadeIn ();
+
+	}
+
+	void FadeIn(){
+		if (screenFader != null) {
+			screenFader.FadeFromBlack ();
+		}
+	}
+	void FadeOut(){
+		if (screenFader != null) {
+			screenFader.FadeToBlack ();
+		}
 	}
 
     void LoadPlayerProfile()
@@ -100,7 +115,7 @@ public class GameController : MonoBehaviour {
         for(int i = 0; i<enemyControllers.Count; i++)
         {
             GameObject primary_weapon_object = GameObject.Find("WeaponManager").GetComponent<WeaponManager>().GetRandomWeapon();
-            enemyControllers[i].unit.primaryWeapon = GameObject.Instantiate(primary_weapon_object, new Vector3(enemyControllers[i].unit.transform.position.x, enemyControllers[i].unit.transform.position.y, -5), Quaternion.identity).GetComponent<Weapon>();
+            enemyControllers[i].unit.primaryWeapon = GameObject.Instantiate(primary_weapon_object, new Vector3(enemyControllers[i].unit.transform.position.x, enemyControllers[i].unit.transform.position.y, 0), Quaternion.identity).GetComponent<Weapon>();
             enemyControllers[i].unit.primaryWeapon.owner = enemyControllers[i].unit;
             enemyControllers[i].unit.primaryWeapon.transform.parent = enemyControllers[i].unit.transform;
         }
@@ -141,7 +156,18 @@ public class GameController : MonoBehaviour {
         //spawn player
         LoadPlayerProfile();
 
-		playerUnit.GetComponent<Unit>().Move(spawn_x,spawn_y, false);
+
+		//spawn tiles
+		for (int y = 0; y < height; y++)
+		{
+			for (int x = 0; x < width; x++)
+			{
+				GameObject spawnedTile = Instantiate(tile, new Vector3(x - (width) / 2f, y - (height) / 2f, 0), Quaternion.identity) as GameObject;
+				spawnedTile.GetComponent<SpriteRenderer>().color = Color.Lerp(tile_color_bound_1, tile_color_bound_2, UnityEngine.Random.Range(0.0f, 1.0f));
+				tileGrid[y * width + x] = spawnedTile;
+			}
+		}
+		playerUnit.GetComponent<Unit>().Teleport(spawn_x,spawn_y, false);
 
 		//spawn enemies
 		List<Vector2> coords = new List<Vector2> ();
@@ -167,19 +193,10 @@ public class GameController : MonoBehaviour {
 			GameObject e = GameObject.Instantiate (enemyController, new Vector3 (0, 0, 0), Quaternion.identity);
 			enemyControllers.Add (e.GetComponent<EnemyController>());
             enemyControllers[enemyControllers.Count - 1].unit.GrantRandomWeapon();
-            enemyControllers[enemyControllers.Count - 1].unit.Move((int)coords[i].x, (int)coords[i].y, false);
+            enemyControllers[enemyControllers.Count - 1].unit.Teleport((int)coords[i].x, (int)coords[i].y, false);
         }
 
-        //spawn tiles
-        for (int y = 0; y < height; y++)
-        {
-            for (int x = 0; x < width; x++)
-            {
-                GameObject spawnedTile = Instantiate(tile, new Vector3(x - (width) / 2f, y - (height) / 2f, 0), Quaternion.identity) as GameObject;
-                spawnedTile.GetComponent<SpriteRenderer>().color = Color.Lerp(tile_color_bound_1, tile_color_bound_2, UnityEngine.Random.Range(0.0f, 1.0f));
-                tileGrid[y * width + x] = spawnedTile;
-            }
-        }
+
 
     }
 
@@ -315,6 +332,9 @@ public class GameController : MonoBehaviour {
     {
         return tileGrid[y * levelWidth + x];
     }
+	public void SetTileColor (int x, int y, Color c){
+		tileGrid [y * levelWidth + x].GetComponent<SpriteRenderer> ().color = c;
+	}
     public GameObject GetMiddleTile()
     {
         return tileGrid[levelWidth/2 * levelHeight + levelHeight/2];

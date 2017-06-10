@@ -7,6 +7,7 @@ using UnityEngine;
 using System.Collections;
 
 public class MainCamera : MonoBehaviour {
+	public float orthographic_size;
 	public bool followPlayer;
     public PlayerInputController playerInputController;
 	//player to track
@@ -61,8 +62,9 @@ public class MainCamera : MonoBehaviour {
 		mapCols = levelControllerScript.GetLevelWidth();
 
 		//calculate maximum camera zoom //Orthographic size = ((Vert Resolution)/(PPUScale * PPU)) * 0.5
-		cameraCurrentZoom = ((Screen.height)/(ppuScale * 32))*0.5000f;
+		cameraCurrentZoom = ((Screen.height)/(ppuScale * ppu))*0.5000f;
 		cameraZoomMax = cameraCurrentZoom*2;
+		Camera.main.orthographicSize = cameraCurrentZoom;
 		Camera.main.orthographicSize = cameraCurrentZoom;
 
 		//make the camera less sensitive as we zoom in
@@ -93,11 +95,13 @@ public class MainCamera : MonoBehaviour {
 				if (cameraCurrentZoom < cameraZoomMax) {
 					cameraCurrentZoom += 1;
 					Camera.main.orthographicSize = Mathf.Max (Camera.main.orthographicSize + 1);
+					orthographic_size = Camera.main.orthographicSize;
 				}
 			} else if (Input.GetAxis ("Mouse ScrollWheel") > 0) { // forward
 				if (cameraCurrentZoom > 2) {
 					cameraCurrentZoom -= 1;
 					Camera.main.orthographicSize = Mathf.Min (Camera.main.orthographicSize - 1);
+					orthographic_size = Camera.main.orthographicSize;
 				}
 			}
 

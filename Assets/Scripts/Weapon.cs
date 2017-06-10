@@ -10,7 +10,7 @@ public class Weapon : MonoBehaviour {
 	protected bool visible;
     public float attack_time = .1f;
 	protected float slow_attack;
-	protected float fast_attack;
+	public float fast_attack;
 
     //reticle
     public Reticle reticle;
@@ -51,6 +51,8 @@ public class Weapon : MonoBehaviour {
 		if (GameObject.Find("Armory") != null) {
 			GameObject.Find("Armory").GetComponent<Armory>().AddWeapon(this);
 		}
+		attack_time = .1f;
+		slow_attack = attack_time;
         MakeVisible();
         Reset();
 	}
@@ -185,7 +187,7 @@ public class Weapon : MonoBehaviour {
 
         owner.aiming = true;
         Vector3 tempPosition;
-        tempPosition = new Vector3(owner.transform.position.x, owner.transform.position.y, -3);
+		tempPosition = new Vector3(owner.transform.position.x, owner.transform.position.y, owner.transform.position.z);
 
         //move reticle in direction of closest enemy by default
         AutoAim();
@@ -245,7 +247,7 @@ public class Weapon : MonoBehaviour {
 		if (reticle != null) {
 			owner.gameController.SubTarget (reticle.cordX, reticle.cordY);
 		}if (owner != null) {
-			transform.position = new Vector3 (owner.transform.position.x, owner.transform.position.y, -4);
+			transform.position = new Vector3 (owner.transform.position.x, owner.transform.position.y, transform.position.z);
 		}
 		ResumeLassoSpin ();
         Destroy (myReticleObject);
@@ -257,7 +259,7 @@ public class Weapon : MonoBehaviour {
 			reticle.cordX = x;
 			reticle.cordY = y;
 			GameObject t = owner.gameController.tileGrid [reticle.cordY * owner.gameController.GetLevelWidth () + reticle.cordX];
-			reticle.transform.position = new Vector3 (t.transform.position.x, t.transform.position.y, -3);
+			reticle.transform.position = new Vector3 (t.transform.position.x, t.transform.position.y, 0);
 			return true;
 		}
 
@@ -298,7 +300,7 @@ public class Weapon : MonoBehaviour {
 					reticle.cordX = x;
 					reticle.cordY = y;
 					GameObject t = owner.gameController.tileGrid [reticle.cordY * owner.gameController.GetLevelWidth () + reticle.cordX];
-					reticle.transform.position = new Vector3 (t.transform.position.x, t.transform.position.y, -3);
+					reticle.transform.position = new Vector3 (t.transform.position.x, t.transform.position.y, 0);
                     return true;
 				}
 			}

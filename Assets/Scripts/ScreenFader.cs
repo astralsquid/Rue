@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ScreenFaderScript : MonoBehaviour {
+public class ScreenFader : MonoBehaviour {
 	public Texture2D fadeOutTexture;
 	public float fadeSpeed = 0.8f;
 
@@ -20,7 +20,7 @@ public class ScreenFaderScript : MonoBehaviour {
 		GUI.depth = drawDepth;
 		GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), fadeOutTexture);
 		if (alpha <= 0) {
-			gameObject.SetActive(false);
+			//gameObject.SetActive(false);
 		}
 	}
 
