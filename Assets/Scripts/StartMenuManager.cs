@@ -15,6 +15,7 @@ public class StartMenuManager : MonoBehaviour {
     public GameObject wishPanel;
     public GameObject customizationPanel;
     public GameObject mainPanel;
+	public GameObject optionsPanel;
 
     public Slider rSlider;
     public Slider gSlider;
@@ -74,6 +75,10 @@ public class StartMenuManager : MonoBehaviour {
         HideAllPanels();
         ShowPanel(customizationPanel);
     }
+	public void ShowOptionsPanel(){
+		HideAllPanels();
+		ShowPanel (optionsPanel);
+	}
     public void StartGame()
     {
         //load all info into file, switch to intro scene

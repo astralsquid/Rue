@@ -38,10 +38,11 @@ public class IntroManager : MonoBehaviour {
 	IEnumerator EndSquence(){
 		highlight = false;
 		HighlightSquare(1,20, color1);
-		GetComponent<AudioSource> ().Play ();
+		GetComponent<AudioSource> ().volume = PlayerPrefs.GetFloat ("effects");
+		GetComponent<AudioSource> ().Play();
 		playerInputController.DisableInput();
 		screenFader.FadeToBlack ();
-		yield return new WaitForSeconds(4);
+		yield return new WaitForSeconds(5);
 		SceneManager.LoadScene ("FrontDesk");
 	}
 

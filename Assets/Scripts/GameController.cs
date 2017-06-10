@@ -217,7 +217,6 @@ public class GameController : MonoBehaviour {
 
         if (level_won && !elevator_called)
         {
-			Debug.Log ("wow");
             elevator_called = true;
 			StopReflex ();
 			LowerElevator (false);

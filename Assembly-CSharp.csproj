@@ -48,6 +48,7 @@
   <ItemGroup>
      <Compile Include="Assets\FrontDeskManager.cs" />
      <Compile Include="Assets\IntroManager.cs" />
+     <Compile Include="Assets\OptionsManager.cs" />
      <Compile Include="Assets\Scripts\Armory.cs" />
      <Compile Include="Assets\Scripts\Bolo.cs" />
      <Compile Include="Assets\Scripts\ButtonController.cs" />

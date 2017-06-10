@@ -20,6 +20,9 @@ public class FrontDeskManager : MonoBehaviour {
 		StartCoroutine(Setup ());
 		sequenceTriggered = false;
 		sequenceDone = false;
+		dingClip.volume = PlayerPrefs.GetFloat ("effects");
+		musicClip.volume = PlayerPrefs.GetFloat ("music");
+		musicClip.Play ();
 	}
 	
 	// Update is called once per frame

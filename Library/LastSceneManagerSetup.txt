@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/IntroWalk.unity
+- path: Assets/FrontDesk.unity
   isLoaded: 1
   isActive: 1
